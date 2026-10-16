@@ -3,9 +3,9 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hungerlib"
+name = "calagoapi"
 version = "0.0.0"
-description = "Powerful automation library for Pterodactyl."
+description = "Powerful automation library for Calagopus."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -15,23 +15,18 @@ authors = [
 ]
 
 keywords = [
-    "pterodactyl",
+    "calagopus",
     "minecraft",
     "automation",
     "rcon",
     "server-management",
-    "hungerlib",
     "hungernet"
 ]
 
 dependencies = [
     "requests",
-    "PyYaml",
     "mapres",
     "jinja2",
-    "cloudflare",
-    "uvicorn",
-    "fastapi",
 ]
 
 classifiers = [
@@ -48,10 +43,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/iFamished/HungerLib"
-Documentation = "https://github.com/iFamished/HungerLib"
-Source = "https://github.com/iFamished/HungerLib"
-Issues = "https://github.com/iFamished/HungerLib/issues"
+Homepage = "https://github.com/HungerNet/CalagoAPI"
+Documentation = "https://github.com/HungerNet/CalagoAPI"
+Source = "https://github.com/HungerNet/CalagoAPI"
+Issues = "https://github.com/HungerNet/CalagoAPI/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
