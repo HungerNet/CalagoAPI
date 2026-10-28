@@ -2,4 +2,19 @@ run: true
 version: '1.0-dev.1'
 description: |
   Dev 1:
-  - 
+  - Initial CalagoAPI release, a Calagopus-native rewrite of the HungerLib panel layer
+  - Panel, GenericServer and MinecraftServer with HungerLib-compatible method names
+  - Files, backups, databases (incl. database instances and explorer), schedules, subusers,
+    allocations, subdomains, firewall and tunnels
+  - Account management: API keys, SSH keys, security keys, sessions, OAuth links, two-factor, command snippets
+  - Full admin API: users, servers, nodes, locations, nests/eggs, mounts, devices, roles, announcements,
+    OAuth providers, database hosts, backup configurations and policies, egg repositories, system, email, extensions
+  - Schedule builders (triggers, conditions, actions)
+  - Typed exceptions and automatic pagination
+  - Live console over the daemon websocket: server.console, streamConsole(), onConsoleLine(), waitFor(), event callbacks,
+    automatic token renewal and reconnects
+  - AsyncPanel: the whole API with await, plus a native asyncio console
+  - Automatic retries for rate limited requests and for reads hitting transient errors (Panel(max_retries=...))
+  - Panel can be used as a context manager, Panel.close()
+  - License metadata now matches the LICENSE file (GPL-3.0)
+  - Offline test suite (pytest) against openapi.json and a fake daemon
