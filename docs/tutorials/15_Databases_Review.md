@@ -74,11 +74,11 @@ needs to write data.
 
 ## Continue Learning
 
-Next: [16 Schedules](16_Schedules.md)
+Next: [16 Schedules](16_Schedules.md)  
 
 ## Navigation
 
-Previous: [14 Databases](14_Databases.md)
-Next: [16 Schedules](16_Schedules.md)
-Reference Docs: [Databases](../reference/databases.md)
+Previous: [14 Databases](14_Databases.md)  
+Next: [16 Schedules](16_Schedules.md)  
+Reference Docs: [Databases](../reference/databases.md)  
 Related Examples: Code examples are embedded in this walkthrough.

@@ -71,11 +71,11 @@ preserve unrelated configuration entries.
 
 ## Continue Learning
 
-Next: [12 Backups](12_Backups.md)
+Next: [12 Backups](12_Backups.md)  
 
 ## Navigation
 
-Previous: [10 Working with Files](10_Working_With_Files.md)
-Next: [12 Backups](12_Backups.md)
-Reference Docs: [Files](../reference/files.md)
+Previous: [10 Working with Files](10_Working_With_Files.md)  
+Next: [12 Backups](12_Backups.md)  
+Reference Docs: [Files](../reference/files.md)  
 Related Examples: Code examples are embedded in this walkthrough.

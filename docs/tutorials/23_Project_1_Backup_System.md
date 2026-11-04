@@ -8,7 +8,7 @@
 
 ## Prerequisites
 
-[17 Schedules Review](17_Schedules_Review.md). Review [Backups](12_Backups.md)
+[17 Schedules Review](17_Schedules_Review.md). Review [Backups](12_Backups.md)  
 and [Schedules](16_Schedules.md). The API key needs backup and schedule
 permissions for the target server.
 
@@ -100,11 +100,11 @@ backup step from running unless the server is already running.
 
 ## Continue Learning
 
-Next: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)
+Next: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)  
 
 ## Navigation
 
-Previous: [22 Admin API](22_Admin_API.md)
-Next: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)
-Reference Docs: [Backups](../reference/backups.md), [Schedules](../reference/schedules.md)
+Previous: [22 Admin API](22_Admin_API.md)  
+Next: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)  
+Reference Docs: [Backups](../reference/backups.md), [Schedules](../reference/schedules.md)  
 Related Examples: Code examples are embedded in this walkthrough.

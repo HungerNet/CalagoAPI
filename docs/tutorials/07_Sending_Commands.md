@@ -75,11 +75,11 @@ these decisions separate when a message must not trigger a restart.
 
 ## Continue Learning
 
-Next: [08 Using the Console](08_Using_The_Console.md)
+Next: [08 Using the Console](08_Using_The_Console.md)  
 
 ## Navigation
 
-Previous: [06 Power Actions](06_Power_Actions.md)
-Next: [08 Using the Console](08_Using_The_Console.md)
-Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)
+Previous: [06 Power Actions](06_Power_Actions.md)  
+Next: [08 Using the Console](08_Using_The_Console.md)  
+Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)  
 Related Examples: Code examples are embedded in this walkthrough.

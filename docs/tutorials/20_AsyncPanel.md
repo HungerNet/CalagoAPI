@@ -80,11 +80,11 @@ the coroutine exits.
 
 ## Continue Learning
 
-Next: [21 Extensions](21_Extensions.md)
+Next: [21 Extensions](21_Extensions.md)  
 
 ## Navigation
 
-Previous: [19 Minecraft Servers](19_Minecraft_Servers.md)
-Next: [21 Extensions](21_Extensions.md)
-Reference Docs: [Async](../reference/async.md)
+Previous: [19 Minecraft Servers](19_Minecraft_Servers.md)  
+Next: [21 Extensions](21_Extensions.md)  
+Reference Docs: [Async](../reference/async.md)  
 Related Examples: Code examples are embedded in this walkthrough.

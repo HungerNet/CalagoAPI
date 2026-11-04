@@ -87,11 +87,11 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
 
 ## Continue Learning
 
-Next: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)
+Next: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)  
 
 ## Navigation
 
-Previous: [03 Finding Servers](03_Finding_Servers.md)
-Next: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)
-Reference Docs: [Servers](../reference/servers.md), [Object model](../architecture/Object_Model.md)
+Previous: [03 Finding Servers](03_Finding_Servers.md)  
+Next: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)  
+Reference Docs: [Servers](../reference/servers.md), [Object model](../architecture/Object_Model.md)  
 Related Examples: Code examples are embedded in this walkthrough.

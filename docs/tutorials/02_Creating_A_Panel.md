@@ -77,11 +77,11 @@ raises a typed error, the context manager still closes the connection.
 
 ## Continue Learning
 
-Next: [03 Finding Servers](03_Finding_Servers.md)
+Next: [03 Finding Servers](03_Finding_Servers.md)  
 
 ## Navigation
 
-Previous: [01 Installation](01_Installation.md)
-Next: [03 Finding Servers](03_Finding_Servers.md)
-Reference Docs: [Getting started](../reference/getting-started.md), [Account](../reference/account.md)
+Previous: [01 Installation](01_Installation.md)  
+Next: [03 Finding Servers](03_Finding_Servers.md)  
+Reference Docs: [Getting started](../reference/getting-started.md), [Account](../reference/account.md)  
 Related Examples: Code examples are embedded in this walkthrough.

@@ -87,11 +87,11 @@ application-specific health signals. The report itself makes no changes.
 
 ## Continue Learning
 
-Next: [27 Where to Go Next](27_Where_To_Go_Next.md)
+Next: [27 Where to Go Next](27_Where_To_Go_Next.md)  
 
 ## Navigation
 
-Previous: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)
-Next: [27 Where to Go Next](27_Where_To_Go_Next.md)
-Reference Docs: [API Reference](../reference/README.md)
+Previous: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)  
+Next: [27 Where to Go Next](27_Where_To_Go_Next.md)  
+Reference Docs: [API Reference](../reference/README.md)  
 Related Examples: Code examples are embedded in this walkthrough.

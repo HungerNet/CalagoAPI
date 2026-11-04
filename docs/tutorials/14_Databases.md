@@ -93,11 +93,11 @@ Review available templates and limits before creating an instance.
 
 ## Continue Learning
 
-Next: [15 Databases Review](15_Databases_Review.md)
+Next: [15 Databases Review](15_Databases_Review.md)  
 
 ## Navigation
 
-Previous: [13 Backups Review](13_Backups_Review.md)
-Next: [15 Databases Review](15_Databases_Review.md)
-Reference Docs: [Databases](../reference/databases.md)
+Previous: [13 Backups Review](13_Backups_Review.md)  
+Next: [15 Databases Review](15_Databases_Review.md)  
+Reference Docs: [Databases](../reference/databases.md)  
 Related Examples: Code examples are embedded in this walkthrough.

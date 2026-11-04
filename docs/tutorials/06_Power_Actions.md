@@ -81,11 +81,11 @@ Read state before sending the action. The script waits only after it sends
 
 ## Continue Learning
 
-Next: [07 Sending Commands](07_Sending_Commands.md)
+Next: [07 Sending Commands](07_Sending_Commands.md)  
 
 ## Navigation
 
-Previous: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)
-Next: [07 Sending Commands](07_Sending_Commands.md)
-Reference Docs: [Servers](../reference/servers.md), [Errors and utilities](../reference/errors-and-utilities.md)
+Previous: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)  
+Next: [07 Sending Commands](07_Sending_Commands.md)  
+Reference Docs: [Servers](../reference/servers.md), [Errors and utilities](../reference/errors-and-utilities.md)  
 Related Examples: Code examples are embedded in this walkthrough.

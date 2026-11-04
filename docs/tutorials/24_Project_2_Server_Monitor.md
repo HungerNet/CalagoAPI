@@ -127,11 +127,11 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
 
 ## Continue Learning
 
-Next: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)
+Next: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)  
 
 ## Navigation
 
-Previous: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)
-Next: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)
-Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)
+Previous: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)  
+Next: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)  
+Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)  
 Related Examples: Code examples are embedded in this walkthrough.

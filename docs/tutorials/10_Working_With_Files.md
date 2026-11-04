@@ -85,11 +85,11 @@ ready to replace or create server-side contents.
 
 ## Continue Learning
 
-Next: [11 Files Review](11_Files_Review.md)
+Next: [11 Files Review](11_Files_Review.md)  
 
 ## Navigation
 
-Previous: [09 Console Review](09_Console_Review.md)
-Next: [11 Files Review](11_Files_Review.md)
-Reference Docs: [Files](../reference/files.md)
+Previous: [09 Console Review](09_Console_Review.md)  
+Next: [11 Files Review](11_Files_Review.md)  
+Reference Docs: [Files](../reference/files.md)  
 Related Examples: Code examples are embedded in this walkthrough.

@@ -80,7 +80,7 @@ Next: Explore the [API reference](../reference/README.md),
 
 ## Navigation
 
-Previous: [26 Final Review](26_Final_Review.md)
-Next: [API Reference](../reference/README.md)
-Reference Docs: [API Reference](../reference/README.md)
+Previous: [26 Final Review](26_Final_Review.md)  
+Next: [API Reference](../reference/README.md)  
+Reference Docs: [API Reference](../reference/README.md)  
 Related Examples: Code examples are embedded in this walkthrough.

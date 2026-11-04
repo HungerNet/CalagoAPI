@@ -78,11 +78,11 @@ support.
 
 ## Continue Learning
 
-Next: [19 Minecraft Servers](19_Minecraft_Servers.md)
+Next: [19 Minecraft Servers](19_Minecraft_Servers.md)  
 
 ## Navigation
 
-Previous: [17 Schedules Review](17_Schedules_Review.md)
-Next: [19 Minecraft Servers](19_Minecraft_Servers.md)
-Reference Docs: [Network](../reference/network.md)
+Previous: [17 Schedules Review](17_Schedules_Review.md)  
+Next: [19 Minecraft Servers](19_Minecraft_Servers.md)  
+Reference Docs: [Network](../reference/network.md)  
 Related Examples: Code examples are embedded in this walkthrough.

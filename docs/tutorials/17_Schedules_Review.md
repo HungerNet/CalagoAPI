@@ -71,11 +71,11 @@ keep this report read-only until the configured workflow has been reviewed.
 
 ## Continue Learning
 
-Next: [18 Networking](18_Networking.md)
+Next: [18 Networking](18_Networking.md)  
 
 ## Navigation
 
-Previous: [16 Schedules](16_Schedules.md)
-Next: [18 Networking](18_Networking.md)
-Reference Docs: [Schedules](../reference/schedules.md)
+Previous: [16 Schedules](16_Schedules.md)  
+Next: [18 Networking](18_Networking.md)  
+Reference Docs: [Schedules](../reference/schedules.md)  
 Related Examples: Code examples are embedded in this walkthrough.

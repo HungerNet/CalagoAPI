@@ -78,11 +78,11 @@ change, so production automation usually stores an ID in configuration.
 
 ## Continue Learning
 
-Next: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)
+Next: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)  
 
 ## Navigation
 
-Previous: [02 Creating a Panel](02_Creating_A_Panel.md)
-Next: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)
-Reference Docs: [Servers](../reference/servers.md)
+Previous: [02 Creating a Panel](02_Creating_A_Panel.md)  
+Next: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)  
+Reference Docs: [Servers](../reference/servers.md)  
 Related Examples: Code examples are embedded in this walkthrough.

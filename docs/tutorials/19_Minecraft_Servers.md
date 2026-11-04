@@ -76,11 +76,11 @@ change from the decision to restart.
 
 ## Continue Learning
 
-Next: [20 AsyncPanel](20_AsyncPanel.md)
+Next: [20 AsyncPanel](20_AsyncPanel.md)  
 
 ## Navigation
 
-Previous: [18 Networking](18_Networking.md)
-Next: [20 AsyncPanel](20_AsyncPanel.md)
-Reference Docs: [Minecraft servers](../reference/minecraft.md), [Servers](../reference/servers.md)
+Previous: [18 Networking](18_Networking.md)  
+Next: [20 AsyncPanel](20_AsyncPanel.md)  
+Reference Docs: [Minecraft servers](../reference/minecraft.md), [Servers](../reference/servers.md)  
 Related Examples: Code examples are embedded in this walkthrough.

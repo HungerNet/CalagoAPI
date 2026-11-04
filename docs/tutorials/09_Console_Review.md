@@ -74,11 +74,11 @@ the websocket is closed after the matching line is handled.
 
 ## Continue Learning
 
-Next: [10 Working with Files](10_Working_With_Files.md)
+Next: [10 Working with Files](10_Working_With_Files.md)  
 
 ## Navigation
 
-Previous: [08 Using the Console](08_Using_The_Console.md)
-Next: [10 Working with Files](10_Working_With_Files.md)
-Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)
+Previous: [08 Using the Console](08_Using_The_Console.md)  
+Next: [10 Working with Files](10_Working_With_Files.md)  
+Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)  
 Related Examples: Code examples are embedded in this walkthrough.

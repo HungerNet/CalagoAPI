@@ -122,11 +122,11 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
 
 ## Continue Learning
 
-Next: [26 Final Review](26_Final_Review.md)
+Next: [26 Final Review](26_Final_Review.md)  
 
 ## Navigation
 
-Previous: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)
-Next: [26 Final Review](26_Final_Review.md)
-Reference Docs: [Servers](../reference/servers.md), [Files](../reference/files.md), [Administration](../reference/admin.md)
+Previous: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)  
+Next: [26 Final Review](26_Final_Review.md)  
+Reference Docs: [Servers](../reference/servers.md), [Files](../reference/files.md), [Administration](../reference/admin.md)  
 Related Examples: Code examples are embedded in this walkthrough.

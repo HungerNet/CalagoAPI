@@ -98,11 +98,11 @@ change or remove data and should be handled separately.
 
 ## Continue Learning
 
-Next: [13 Backups Review](13_Backups_Review.md)
+Next: [13 Backups Review](13_Backups_Review.md)  
 
 ## Navigation
 
-Previous: [11 Files Review](11_Files_Review.md)
-Next: [13 Backups Review](13_Backups_Review.md)
-Reference Docs: [Backups](../reference/backups.md)
+Previous: [11 Files Review](11_Files_Review.md)  
+Next: [13 Backups Review](13_Backups_Review.md)  
+Reference Docs: [Backups](../reference/backups.md)  
 Related Examples: Code examples are embedded in this walkthrough.

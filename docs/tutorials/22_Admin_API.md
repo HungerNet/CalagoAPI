@@ -72,11 +72,11 @@ server automation, and grant the narrowest permissions the report requires.
 
 ## Continue Learning
 
-Next: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)
+Next: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)  
 
 ## Navigation
 
-Previous: [21 Extensions](21_Extensions.md)
-Next: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)
-Reference Docs: [Administration](../reference/admin.md)
+Previous: [21 Extensions](21_Extensions.md)  
+Next: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)  
+Reference Docs: [Administration](../reference/admin.md)  
 Related Examples: Code examples are embedded in this walkthrough.

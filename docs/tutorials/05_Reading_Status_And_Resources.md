@@ -111,11 +111,11 @@ If the script runs for a while and needs a newer measurement, call
 
 ## Continue Learning
 
-Next: [06 Power Actions](06_Power_Actions.md)
+Next: [06 Power Actions](06_Power_Actions.md)  
 
 ## Navigation
 
-Previous: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)
-Next: [06 Power Actions](06_Power_Actions.md)
-Reference Docs: [Servers](../reference/servers.md)
+Previous: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)  
+Next: [06 Power Actions](06_Power_Actions.md)  
+Reference Docs: [Servers](../reference/servers.md)  
 Related Examples: Code examples are embedded in this walkthrough.

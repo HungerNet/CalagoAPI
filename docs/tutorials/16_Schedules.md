@@ -84,11 +84,11 @@ are expressed in milliseconds.
 
 ## Continue Learning
 
-Next: [17 Schedules Review](17_Schedules_Review.md)
+Next: [17 Schedules Review](17_Schedules_Review.md)  
 
 ## Navigation
 
-Previous: [15 Databases Review](15_Databases_Review.md)
-Next: [17 Schedules Review](17_Schedules_Review.md)
-Reference Docs: [Schedules](../reference/schedules.md)
+Previous: [15 Databases Review](15_Databases_Review.md)  
+Next: [17 Schedules Review](17_Schedules_Review.md)  
+Reference Docs: [Schedules](../reference/schedules.md)  
 Related Examples: Code examples are embedded in this walkthrough.

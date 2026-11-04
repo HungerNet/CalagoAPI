@@ -77,11 +77,11 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
 
 ## Continue Learning
 
-Next: [22 Admin API](22_Admin_API.md)
+Next: [22 Admin API](22_Admin_API.md)  
 
 ## Navigation
 
-Previous: [20 AsyncPanel](20_AsyncPanel.md)
-Next: [22 Admin API](22_Admin_API.md)
-Reference Docs: [Extensions overview](../extensions/01_Extensions_Overview.md), [Minecraft](../reference/minecraft.md)
+Previous: [20 AsyncPanel](20_AsyncPanel.md)  
+Next: [22 Admin API](22_Admin_API.md)  
+Reference Docs: [Extensions overview](../extensions/01_Extensions_Overview.md), [Minecraft](../reference/minecraft.md)  
 Related Examples: Code examples are embedded in this walkthrough.

@@ -61,11 +61,11 @@ prints `Panel`; it confirms installation only, not connectivity to a panel.
 
 ## Continue Learning
 
-Next: [02 Creating a Panel](02_Creating_A_Panel.md)
+Next: [02 Creating a Panel](02_Creating_A_Panel.md)  
 
 ## Navigation
 
-Previous: [00 Introduction](00_Introduction.md)
-Next: [02 Creating a Panel](02_Creating_A_Panel.md)
-Reference Docs: [Getting started](../reference/getting-started.md)
+Previous: [00 Introduction](00_Introduction.md)  
+Next: [02 Creating a Panel](02_Creating_A_Panel.md)  
+Reference Docs: [Getting started](../reference/getting-started.md)  
 Related Examples: Code examples are embedded in this walkthrough.

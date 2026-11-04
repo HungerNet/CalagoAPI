@@ -76,11 +76,11 @@ clear operational meaning.
 
 ## Continue Learning
 
-Next: [09 Console Review](09_Console_Review.md)
+Next: [09 Console Review](09_Console_Review.md)  
 
 ## Navigation
 
-Previous: [07 Sending Commands](07_Sending_Commands.md)
-Next: [09 Console Review](09_Console_Review.md)
-Reference Docs: [Live console](../reference/console.md), [Async](../reference/async.md)
+Previous: [07 Sending Commands](07_Sending_Commands.md)  
+Next: [09 Console Review](09_Console_Review.md)  
+Reference Docs: [Live console](../reference/console.md), [Async](../reference/async.md)  
 Related Examples: Code examples are embedded in this walkthrough.

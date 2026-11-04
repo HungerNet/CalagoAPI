@@ -75,11 +75,11 @@ show how to combine them into a workflow.
 
 ## Continue Learning
 
-Next: [01 Installation](01_Installation.md)
+Next: [01 Installation](01_Installation.md)  
 
 ## Navigation
 
 Previous: Start here
-Next: [01 Installation](01_Installation.md)
-Reference Docs: [Getting started](../reference/getting-started.md)
+Next: [01 Installation](01_Installation.md)  
+Reference Docs: [Getting started](../reference/getting-started.md)  
 Related Examples: Code examples are embedded in this walkthrough.

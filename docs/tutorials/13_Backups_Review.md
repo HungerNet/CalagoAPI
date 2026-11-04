@@ -74,11 +74,11 @@ The report is read-only. Restoring is a separate workflow; in particular,
 
 ## Continue Learning
 
-Next: [14 Databases](14_Databases.md)
+Next: [14 Databases](14_Databases.md)  
 
 ## Navigation
 
-Previous: [12 Backups](12_Backups.md)
-Next: [14 Databases](14_Databases.md)
-Reference Docs: [Backups](../reference/backups.md)
+Previous: [12 Backups](12_Backups.md)  
+Next: [14 Databases](14_Databases.md)  
+Reference Docs: [Backups](../reference/backups.md)  
 Related Examples: Code examples are embedded in this walkthrough.
