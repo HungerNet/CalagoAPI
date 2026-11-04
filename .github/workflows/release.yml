@@ -1,5 +1,21 @@
 name: Versioned Release
 
+# Publishes calagoapi and every first-party extension in src/extensions/ as
+# independent PyPI packages. Each package has its own version.yaml:
+#
+#   run: true/false     publish this package on push to main
+#   version: '1.0.0'    the version to publish
+#   description: |      release notes
+#
+# A package is skipped when run is false or when its tag already exists, so
+# bumping one package's version.yaml releases only that package.
+#
+# Tags: calagoapi keeps the bare version ('1.0-dev.2'); extensions use
+# '<package>-v<version>' ('calagoapi-hungerbridge-v1.0.0').
+#
+# PyPI trusted publishing must be configured once per PyPI project, pointing at
+# this repository and this workflow file (release.yml).
+
 on:
   push:
     branches:
@@ -10,9 +26,60 @@ permissions:
   id-token: write
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
+  tests:
     if: ${{ !contains(github.event.head_commit.message, 'Merge pull request') }}
+    uses: ./.github/workflows/tests.yml
+
+  packages:
+    needs: tests
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: List packages
+        id: list
+        run: |
+          python3 - << 'EOF' >> "$GITHUB_OUTPUT"
+          import glob, json, os, re, tomllib
+
+          # every extension package, with the first-party packages it depends on
+          packages = {}
+          for pyproject in sorted(glob.glob('src/extensions/*/pyproject.toml')):
+              path = os.path.dirname(pyproject)
+              name = os.path.basename(path)
+              requires = tomllib.load(open(pyproject, 'rb'))['project'].get('dependencies', [])
+              packages[name] = (path, {re.split(r'[<>=!~ ;\[]', r, maxsplit=1)[0] for r in requires})
+
+          # core first, then each extension after the extensions it depends on
+          items = [{'package': 'calagoapi', 'path': '.', 'tag_prefix': ''}]
+          done = {'calagoapi'}
+          while packages:
+              ready = sorted(n for n, (_, deps) in packages.items() if not (deps & set(packages)) - done)
+              if not ready:
+                  raise SystemExit(f'circular dependencies between {sorted(packages)}')
+              for name in ready:
+                  path, _ = packages.pop(name)
+                  items.append({'package': name, 'path': path, 'tag_prefix': f'{name}-v'})
+                  done.add(name)
+          print('matrix=' + json.dumps({'include': items}))
+          EOF
+
+  release:
+    needs: packages
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # one at a time, core first, so dependencies are on PyPI before their users
+      max-parallel: 1
+      matrix: ${{ fromJson(needs.packages.outputs.matrix) }}
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
 
     steps:
       - name: Checkout
@@ -25,35 +92,42 @@ jobs:
           chmod +x /usr/local/bin/yq
 
       - name: Parse version.yaml
-        id: version
         run: |
+          VERSION=$(yq '.version' version.yaml)
           echo "RUN=$(yq '.run' version.yaml)" >> $GITHUB_ENV
-          echo "VERSION=$(yq '.version' version.yaml)" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG=${{ matrix.tag_prefix }}$VERSION" >> $GITHUB_ENV
           echo "DESC<<EOF" >> $GITHUB_ENV
           yq '.description' version.yaml >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Stop if run=false
-        if: ${{ env.RUN == 'false' }}
-        run: echo "run=false → skipping release."
+      - name: Skip if run=false or already released
+        run: |
+          PUBLISH=true
+          if [ "$RUN" != "true" ]; then
+            echo "${{ matrix.package }}: run=false, skipping."
+            PUBLISH=false
+          elif git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null; then
+            echo "${{ matrix.package }}: tag $TAG already exists, skipping."
+            PUBLISH=false
+          fi
+          echo "PUBLISH=$PUBLISH" >> $GITHUB_ENV
 
       - name: Set up Python 3.11
-        if: ${{ env.RUN == 'true' }}
+        if: ${{ env.PUBLISH == 'true' }}
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
       - name: Install Python deps
-        if: ${{ env.RUN == 'true' }}
+        if: ${{ env.PUBLISH == 'true' }}
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade pip
           pip install build tomli tomli_w
 
-
       - name: Inject version into pyproject.toml
-        if: ${{ env.RUN == 'true' }}
+        if: ${{ env.PUBLISH == 'true' }}
         run: |
           python - << 'EOF'
           import tomli, tomli_w
@@ -67,24 +141,25 @@ jobs:
           EOF
 
       - name: Build package
-        if: ${{ env.RUN == 'true' }}
+        if: ${{ env.PUBLISH == 'true' }}
         run: |
           rm -rf dist
           python -m build
 
       - name: Create GitHub Release
-        if: ${{ env.RUN == 'true' }}
+        if: ${{ env.PUBLISH == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          name: ${{ env.VERSION }}
+          tag_name: ${{ env.TAG }}
+          name: ${{ matrix.package }} ${{ env.VERSION }}
           body: ${{ env.DESC }}
           files: |
-            dist/*.whl
-            dist/*.tar.gz
+            ${{ matrix.path }}/dist/*.whl
+            ${{ matrix.path }}/dist/*.tar.gz
 
       - name: Publish to PyPI
-        if: ${{ env.RUN == 'true' }}
+        if: ${{ env.PUBLISH == 'true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: dist/
+          packages-dir: ${{ matrix.path }}/dist/
+          skip-existing: true

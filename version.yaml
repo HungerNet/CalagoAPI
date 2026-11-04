@@ -1,5 +1,5 @@
 run: true
-version: '1.0-dev.3'
+version: '1.0-dev.4'
 description: |
   Dev 1:
   - Initial release
@@ -9,3 +9,5 @@ description: |
   - Improved documentation
   Dev 3:
   - Fixed bug in file listing
+  Dev 4:
+  - Bump version
