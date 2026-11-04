@@ -1,0 +1,44 @@
+name: Tests
+
+# Runs on pull requests and on pushes to other branches. Pushes to main run these
+# tests through release.yml (workflow_call), so a release is only built when they pass.
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.13']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install calagoapi and the first-party extensions
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          # --no-deps: the extensions require a released calagoapi version, the
+          # checkout's pyproject.toml says 0.0.0 until release.yml injects the version
+          for package in src/extensions/*/; do
+            pip install --no-deps -e "$package"
+          done
+
+      - name: Run tests (core, extensions, examples)
+        run: pytest
