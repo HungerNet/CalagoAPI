@@ -36,29 +36,26 @@ example, `panel.admin.nodes.getNodes()` returns node objects, while
 `panel.admin.getStats()` reads panel-wide statistics. Creation and update
 methods require the corresponding permission and may affect many users.
 
-## Guided Example
+## Build a Read-Only Admin Report
+
+Create the panel connection as usual, then enter the admin namespace. The key
+must belong to an administrator and have the relevant read permissions. Fetch
+panel statistics once, then use the node manager for node objects:
 
 ```python
-stats = panel.admin.getStats()
-print(stats)
-for node in panel.admin.nodes.getNodes():
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  stats = panel.admin.getStats()
+  print('panel stats:', stats)
+
+  for node in panel.admin.nodes.getNodes():
     print(node.getName())
 ```
 
-## Exercise
-
-Using an admin key, print panel statistics and list node names. Do not create,
-delete, or update any resource.
-
-Hint: the admin namespace is `panel.admin`.
-
-## Answer
-
-```python
-print(panel.admin.getStats())
-for node in panel.admin.nodes.getNodes():
-    print(node.getName())
-```
+This report only reads data. Keep admin credentials separate from ordinary
+server automation, and grant the narrowest permissions the report requires.
 
 ## Common Mistakes
 
@@ -82,4 +79,4 @@ Next: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)
 Previous: [21 Extensions](21_Extensions.md)
 Next: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)
 Reference Docs: [Administration](../reference/admin.md)
-Related Examples: [admin answer](../../examples/tutorials/22_admin_api/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

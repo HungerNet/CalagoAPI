@@ -36,30 +36,10 @@ connections at exit. Returned server and resource objects are async wrappers,
 so getters and actions require `await`. Use `asyncio.gather()` when independent
 requests can run concurrently.
 
-## Guided Example
+## Build an Async Status Report
 
-```python
-import asyncio
-from calagoapi import AsyncPanel
-
-async def main():
-    async with AsyncPanel(url=PANEL_URL, api_key=API_KEY) as panel:
-        servers = await panel.servers.getServers()
-        states = await asyncio.gather(*(s.getStatus() for s in servers))
-        for server, state in zip(servers, states):
-            print(server.name, state)
-
-asyncio.run(main())
-```
-
-## Exercise
-
-Using `AsyncPanel`, get the servers and fetch their status values concurrently.
-Print each server name and status.
-
-Hint: `server.name` is an attribute; `server.getName()` is an awaitable method.
-
-## Answer
+Begin with an `async` function and an `AsyncPanel` context. It has the same
+manager hierarchy as `Panel`; method calls become awaitable:
 
 ```python
 import asyncio
@@ -69,6 +49,12 @@ from calagoapi import AsyncPanel
 async def main():
     async with AsyncPanel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
         servers = await panel.servers.getServers()
+```
+
+Each status request is independent, so gather them concurrently. `server.name`
+is a plain attribute and needs no `await`:
+
+```python
         statuses = await asyncio.gather(*(server.getStatus() for server in servers))
         for server, status in zip(servers, statuses):
             print(server.name, status)
@@ -76,19 +62,21 @@ async def main():
 asyncio.run(main())
 ```
 
+The context manager closes the wrapped HTTP client and any async consoles when
+the coroutine exits.
+
 ## Common Mistakes
 
 - Forgetting `await` on a method, including getters.
 - Adding `await` to ordinary attributes such as `.name` or `.data`.
-- Using synchronous `Panel` calls directly inside an event-loop callback.
-- Assuming every network activity, including console streaming, uses a worker
-  thread; the console is native async.
+- Calling synchronous `Panel` methods directly inside an event-loop callback.
+- Treating long-lived console streaming like an ordinary worker-thread call.
 
 ## What You Learned
 
-- `AsyncPanel` keeps the same managers, servers, and resource relationships.
-- Methods are awaitable; attributes are not.
-- Independent calls can run concurrently with `asyncio.gather()`.
+- `AsyncPanel` keeps the same managers and object relationships as `Panel`.
+- Methods are awaitable while plain attributes are read directly.
+- Independent requests can run concurrently with `asyncio.gather()`.
 
 ## Continue Learning
 
@@ -99,4 +87,4 @@ Next: [21 Extensions](21_Extensions.md)
 Previous: [19 Minecraft Servers](19_Minecraft_Servers.md)
 Next: [21 Extensions](21_Extensions.md)
 Reference Docs: [Async](../reference/async.md)
-Related Examples: [async answer](../../examples/tutorials/20_asyncpanel/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

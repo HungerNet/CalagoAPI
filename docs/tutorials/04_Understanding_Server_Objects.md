@@ -36,34 +36,41 @@ such as `getName()` read details; `.data` and `toDict()` expose the underlying
 panel data. Child managers include `files`, `backups`, `databases`, `schedules`,
 `users`, `network`, `tunnel`, and `console`.
 
-## Guided Example
+## Build a Server-Centered Script
+
+Start with the configured connection and retrieve one server. This is the point
+where the script moves from the panel-wide manager to one server's object tree:
 
 ```python
-server = panel.servers.getServer(server_id)
-print(server.getName(), server.getNodeName())
-print(server.files)       # manager scoped to this server
-print(server.backups)
-print(server.get('uuid')) # raw detail field
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  print(server.getName(), server.getNodeName())
 ```
 
-## Exercise
-
-Retrieve a server and print its name, UUID, file manager type, and backup
-manager type. Explain why `server.files` is not a panel-wide file manager.
-
-Hint: `type(value).__name__` prints the class name.
-
-## Answer
+From here, choose the manager that owns the resource you need. `server.files`
+is scoped to this server; its `listFiles()` method returns `File` resource
+objects that retain the parent server context:
 
 ```python
-server = panel.servers.getServer(server_id)
-print(server.getName(), server.getUUID())
-print(type(server.files).__name__)
-print(type(server.backups).__name__)
+  for file in server.files.listFiles('/'):
+    print(file.getName(), file.isDirectory())
 ```
 
-Each manager stores its parent server, so operations are automatically scoped
-to that server.
+## Complete Script
+
+```python
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  print('server:', server.getName(), server.getUUID())
+  for file in server.files.listFiles('/'):
+    print(file.getName(), 'directory' if file.isDirectory() else 'file')
+```
 
 ## Common Mistakes
 
@@ -87,4 +94,4 @@ Next: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)
 Previous: [03 Finding Servers](03_Finding_Servers.md)
 Next: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)
 Reference Docs: [Servers](../reference/servers.md), [Object model](../architecture/Object_Model.md)
-Related Examples: [server object answer](../../examples/tutorials/04_understanding_servers/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

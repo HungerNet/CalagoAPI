@@ -33,47 +33,32 @@ output.
 `server.console.waitFor(text, timeout)` waits for a matching line and raises
 `WaitTimeoutError` if the deadline expires.
 
-## Guided Example
+## Walk Through a Console Request
+
+Build on the earlier lessons by retrieving the server, checking its current
+power state, and using the live console only when it is running. The response
+is a separate event; `sendCommand()` itself does not return console text.
 
 ```python
-if server.isOnline():
-    with server.console as console:
-        console.sendCommand('list')
-        print(console.waitFor('There are', timeout=15))
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+    server = panel.servers.getServer(os.environ['SERVER_ID'])
+    state = server.getStatus()
+    print('power state:', state)
+
+    if state == 'running':
+        with server.console as console:
+            console.sendCommand('list')
+            print(console.waitFor('There are', timeout=15))
+    else:
+        print('The server must be running to query its player list.')
 ```
 
-## Exercise
-
-1. What is the difference between `getStatus()` and `getInstallStatus()`?
-2. What does `server.sendCommand()` return when the command prints a line?
-3. What would this do?
-
-   ```python
-   if server.isOffline():
-       server.start()
-   ```
-
-4. Write a short script that sends `list` only when online and waits for
-   output containing `There are`.
-
-Hint: `sendCommand()` does not return the response; use `waitFor()`.
-
-## Answer
-
-1. `getStatus()` reports power state. `getInstallStatus()` reports whether an
-   installation or restore is in progress or failed.
-2. It returns `None`; output arrives separately through logs or the live
-   console.
-3. It requests a start only if the server is fully offline. It does not wait
-   for startup to finish.
-4. One solution:
-
-   ```python
-   if server.isOnline():
-       with server.console as console:
-           console.sendCommand('list')
-           print(console.waitFor('There are', timeout=15))
-   ```
+Notice that `getStatus()` is distinct from `getInstallStatus()`: this workflow
+needs power state, not installation state. The context manager also ensures
+the websocket is closed after the matching line is handled.
 
 ## Common Mistakes
 
@@ -96,4 +81,4 @@ Next: [10 Working with Files](10_Working_With_Files.md)
 Previous: [08 Using the Console](08_Using_The_Console.md)
 Next: [10 Working with Files](10_Working_With_Files.md)
 Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)
-Related Examples: [console review answer](../../examples/tutorials/09_console_review/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

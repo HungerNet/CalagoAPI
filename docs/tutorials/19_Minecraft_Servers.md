@@ -35,33 +35,30 @@ updates change a server file and typically take effect after restart.
 `saveAll()`, and `acceptEula()` provide common operations. Version installation
 is an optional extension, not part of this core helper set.
 
-## Guided Example
+## Build a Properties Report
+
+Use the Minecraft-specific manager method to get a `MinecraftServer`, then
+read the relevant values from its properties file:
 
 ```python
-server = panel.servers.getMinecraftServer(server_id)
-print(server.getMOTD())
-print(server.getProperty('max-players'))
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getMinecraftServer(os.environ['SERVER_ID'])
+  properties = server.getProperties()
+  print('max-players:', properties.get('max-players'))
+  print('motd:', server.getMOTD())
 ```
 
-## Exercise
-
-Read `max-players` and the MOTD. Do not change properties. Explain why the
-method call `setProperty()` may require a restart before the server reflects
-the change.
-
-Hint: property values are read from `/server.properties`.
-
-## Answer
+To change a value, `setProperty()` writes the file. Most Minecraft properties
+take effect after a server restart, so an automation should separate the file
+change from the decision to restart.
 
 ```python
-server = panel.servers.getMinecraftServer(server_id)
-properties = server.getProperties()
-print('max-players:', properties.get('max-players'))
-print('motd:', server.getMOTD())
+# Example of a deliberate change; leave commented in a read-only report.
+# server.setProperty('motd', 'Season 3 is live!')
 ```
-
-The file is updated immediately, but the Minecraft process generally reads
-these settings when it starts.
 
 ## Common Mistakes
 
@@ -86,4 +83,4 @@ Next: [20 AsyncPanel](20_AsyncPanel.md)
 Previous: [18 Networking](18_Networking.md)
 Next: [20 AsyncPanel](20_AsyncPanel.md)
 Reference Docs: [Minecraft servers](../reference/minecraft.md), [Servers](../reference/servers.md)
-Related Examples: [Minecraft answer](../../examples/tutorials/19_minecraft_servers/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

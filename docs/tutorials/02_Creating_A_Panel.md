@@ -35,7 +35,7 @@ creates the connection. `ping()` checks whether the panel responds;
 `validateAPI()` checks whether the key works. A `with` block calls `close()`
 when its body finishes.
 
-## Guided Example
+## Build the Connection Script
 
 ```python
 import os
@@ -49,15 +49,6 @@ with Panel(
     print('key valid:', panel.validateAPI())
 ```
 
-## Exercise
-
-Create a panel using environment variables and print both health-check results.
-Do not print the API key.
-
-Hint: set `CALAGOPUS_URL` and `CALAGOPUS_API_KEY` in your shell first.
-
-## Answer
-
 ```python
 import os
 from calagoapi import Panel
@@ -66,6 +57,10 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
     print(panel.ping())
     print(panel.validateAPI())
 ```
+
+The `with` block owns the connection lifetime. `ping()` tells you whether the
+panel responds, while `validateAPI()` also checks the key. If either call
+raises a typed error, the context manager still closes the connection.
 
 ## Common Mistakes
 
@@ -89,4 +84,4 @@ Next: [03 Finding Servers](03_Finding_Servers.md)
 Previous: [01 Installation](01_Installation.md)
 Next: [03 Finding Servers](03_Finding_Servers.md)
 Reference Docs: [Getting started](../reference/getting-started.md), [Account](../reference/account.md)
-Related Examples: [panel answer](../../examples/tutorials/02_creating_a_panel/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

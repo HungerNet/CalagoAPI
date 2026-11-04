@@ -32,7 +32,7 @@ The public entry point is `Panel`, imported with `from calagoapi import Panel`.
 Importing the class does not connect to a panel; a connection is created only
 when you instantiate it in the next lesson.
 
-## Guided Example
+## Install and Verify the Import
 
 ```bash
 python -m pip install calagoapi
@@ -42,22 +42,9 @@ python -c "from calagoapi import Panel; print(Panel)"
 For a checkout of this repository, `python -m pip install -e .` installs the
 working tree in editable mode.
 
-## Exercise
-
-Install CalagoAPI in your chosen Python environment and run the import check.
-Write down which Python executable your script will use.
-
-Hint: `python -m pip` installs into the interpreter named by `python`.
-
-## Answer
-
-```bash
-python -m pip install calagoapi
-python -c "from calagoapi import Panel; print(Panel.__name__)"
-```
-
-The import check prints `Panel`. The local repository equivalent is
-`python -m pip install -e .` from the repository root.
+Run pip through the same interpreter that will run your script. From a
+repository checkout, use `python -m pip install -e .` instead. The import check
+prints `Panel`; it confirms installation only, not connectivity to a panel.
 
 ## Common Mistakes
 
@@ -81,4 +68,4 @@ Next: [02 Creating a Panel](02_Creating_A_Panel.md)
 Previous: [00 Introduction](00_Introduction.md)
 Next: [02 Creating a Panel](02_Creating_A_Panel.md)
 Reference Docs: [Getting started](../reference/getting-started.md)
-Related Examples: [installation answer](../../examples/tutorials/01_installation/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

@@ -33,36 +33,31 @@ creation.
 successful backup by default. `waitUntilComplete()` waits for a created backup;
 `restore()` applies it to server files.
 
-## Guided Example
+## Build a Backup Inventory
+
+Once backups exist, a useful follow-up script reports which completed backup
+is currently the best recovery point. `getLatestBackup()` selects the latest
+successful backup by default and returns `None` when no successful backup is
+available.
 
 ```python
-backup = server.backups.getLatestBackup()
-if backup is None:
-    print('no successful backup yet')
-else:
-    print(backup.getName(), backup.getCreated())
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+    server = panel.servers.getServer(os.environ['SERVER_ID'])
+    backup = server.backups.getLatestBackup()
+
+    if backup is None:
+        print('no successful backup yet')
+    else:
+        print('name:', backup.getName())
+        print('created:', backup.getCreated())
+        print('size:', backup.getSize(formatted=True))
 ```
 
-## Exercise
-
-1. Why should code wait after `createBackup()`?
-2. What does `getLatestBackup()` select by default?
-3. What is the extra risk of `restore(truncate_directory=True)`?
-4. Write code that creates a backup and prints its size only after success.
-
-Hint: `getSize(formatted=True)` returns a readable string.
-
-## Answer
-
-1. Backup creation runs in the background.
-2. The most recent successful backup, or `None` if none exists.
-3. It deletes current files before applying the restore.
-4. ```python
-   backup = server.backups.createBackup('review-checkpoint')
-   backup.waitUntilComplete(timeout=3600)
-   if backup.isSuccessful():
-       print(backup.getSize(formatted=True))
-   ```
+The report is read-only. Restoring is a separate workflow; in particular,
+`truncate_directory=True` removes current files before applying the backup.
 
 ## Common Mistakes
 
@@ -86,4 +81,4 @@ Next: [14 Databases](14_Databases.md)
 Previous: [12 Backups](12_Backups.md)
 Next: [14 Databases](14_Databases.md)
 Reference Docs: [Backups](../reference/backups.md)
-Related Examples: [backup review answer](../../examples/tutorials/13_backups_review/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

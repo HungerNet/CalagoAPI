@@ -32,50 +32,36 @@ step can fail or change server state. Review the whole flow before enabling it.
 `getSteps()`, `isEnabled()`, and `getStatus()`. `enable()` and `run()` change
 behavior, so use them intentionally.
 
-## Guided Example
+## Build a Schedule Review Report
+
+Before enabling automation, inspect the schedule stored on the server. The
+manager lists `Schedule` objects; each object provides its enabled state,
+trigger configuration, condition, and ordered steps.
 
 ```python
-for schedule in server.schedules.getSchedules():
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  for schedule in server.schedules.getSchedules():
     print(schedule.getName(), 'enabled=', schedule.isEnabled())
+    print('triggers:', schedule.getTriggers())
+    print('condition:', schedule.getCondition())
+    for step in schedule.getSteps():
+      print(' ', step.getOrder(), step.getActionType())
 ```
 
-## Exercise
-
-1. What are the three main parts of a schedule?
-2. If a cron trigger fires but the condition is false, should its steps run?
-3. What does this order do?
-
-   ```python
-   steps=[actions.createBackup('nightly'), actions.sendCommand('say Backup done')]
-   ```
-
-4. Write a disabled schedule that backs up a running server once per day.
-
-Hint: place the backup action after the trigger and condition arguments.
-
-## Answer
-
-1. Trigger, condition, and ordered steps.
-2. No; the condition filters whether the schedule runs.
-3. It starts a backup, then sends the announcement command as the next step.
-4. ```python
-   from calagoapi import actions, conditions, triggers
-
-   schedule = server.schedules.createSchedule(
-       'Daily review backup',
-       triggers=[triggers.cron('0 0 3 * * *')],
-       condition=conditions.serverState('running'),
-       steps=[actions.createBackup('nightly')],
-       enabled=False,
-   )
-   ```
+The trigger starts evaluation; the condition filters whether a run proceeds;
+the steps then execute in order. `enable()` and `run()` change behavior, so
+keep this report read-only until the configured workflow has been reviewed.
 
 ## Common Mistakes
 
-- Reviewing only the trigger and overlooking the actions.
-- Assuming a condition starts a server; it only checks state.
-- Forgetting to distinguish a schedule being configured from a run being
-  completed.
+- Reviewing only a trigger and overlooking its condition and ordered steps.
+- Assuming a condition starts a server; it only checks whether a condition
+  matches.
+- Enabling a schedule before confirming its time and effects.
 
 ## What You Learned
 
@@ -92,4 +78,4 @@ Next: [18 Networking](18_Networking.md)
 Previous: [16 Schedules](16_Schedules.md)
 Next: [18 Networking](18_Networking.md)
 Reference Docs: [Schedules](../reference/schedules.md)
-Related Examples: [schedule review answer](../../examples/tutorials/17_schedules_review/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

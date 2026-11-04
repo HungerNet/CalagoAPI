@@ -36,32 +36,30 @@ Methods look like `server.installVersion(...)`, properties like
 `server.installedVersion`, and services like `server.hungerbridge.players()`.
 Extensions may use direct or namespace mode; services are already namespaces.
 
-## Guided Example
+## Build a Version Inspection Script
+
+Install the optional package separately from core CalagoAPI. The panel-side
+Minecraft Version Changer must also be installed. Enable the SDK extension once
+near application startup, before using its methods:
 
 ```python
 from calagoapi.extensions import enable
 
 enable('version_changer')
-server = panel.servers.getMinecraftServer(server_id)
-print(server.getInstalledVersion())
 ```
 
-## Exercise
-
-Install and enable the version changer extension, then query the current
-installed version. Do not install or update a build.
-
-Hint: read the extension's install guide first; the panel-side extension is
-also required.
-
-## Answer
+Then use the familiar Minecraft server manager and read the installed version.
+This script is intentionally read-only; version installation is a separate,
+state-changing operation with its own backup and restart considerations:
 
 ```python
-from calagoapi.extensions import enable
+import os
+from calagoapi import Panel
 
-enable('version_changer')
-server = panel.servers.getMinecraftServer(server_id)
-print(server.getInstalledVersion())
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+	server = panel.servers.getMinecraftServer(os.environ['SERVER_ID'])
+	print(server.getInstalledVersion())
+	print('up to date:', server.isUpToDate())
 ```
 
 ## Common Mistakes
@@ -86,4 +84,4 @@ Next: [22 Admin API](22_Admin_API.md)
 Previous: [20 AsyncPanel](20_AsyncPanel.md)
 Next: [22 Admin API](22_Admin_API.md)
 Reference Docs: [Extensions overview](../extensions/01_Extensions_Overview.md), [Minecraft](../reference/minecraft.md)
-Related Examples: [extension answer](../../examples/tutorials/21_extensions/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

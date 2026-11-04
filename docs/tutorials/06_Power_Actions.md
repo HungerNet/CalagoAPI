@@ -35,7 +35,7 @@ it is online. Wait helpers poll the state and return `False` on timeout.
 `waitForOnline(timeout=...)` and `waitForOffline(...)` report whether the
 target state was reached.
 
-## Guided Example
+## Build a State-Aware Start Script
 
 ```python
 server.restart()
@@ -45,26 +45,26 @@ else:
     print('restart did not finish in time')
 ```
 
-## Exercise
-
-Write a script that starts the server only when it is offline, then waits up to
-two minutes for it to come online. Do not send a start request if it is already
-running.
-
-Hint: use `isOffline()` before `start()`.
-
-## Answer
-
 ```python
-if server.isOffline():
-    server.start()
-    if not server.waitForOnline(timeout=120):
-        print('server did not become online in time')
-elif server.isOnline():
-    print('server is already running')
-else:
-    print('server is transitioning:', server.getStatus())
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+    server = panel.servers.getServer(os.environ['SERVER_ID'])
+    state = server.getStatus()
+
+    if state == 'offline':
+        server.start()
+        if not server.waitForOnline(timeout=120):
+            print('server did not become online in time')
+    elif state == 'running':
+        print('server is already running')
+    else:
+        print('server is transitioning:', state)
 ```
+
+Read state before sending the action. The script waits only after it sends
+`start()` and reports a timeout instead of assuming startup succeeded.
 
 ## Common Mistakes
 
@@ -88,4 +88,4 @@ Next: [07 Sending Commands](07_Sending_Commands.md)
 Previous: [05 Reading Status and Resources](05_Reading_Status_And_Resources.md)
 Next: [07 Sending Commands](07_Sending_Commands.md)
 Reference Docs: [Servers](../reference/servers.md), [Errors and utilities](../reference/errors-and-utilities.md)
-Related Examples: [power action answer](../../examples/tutorials/06_power_actions/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

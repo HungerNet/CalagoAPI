@@ -35,29 +35,29 @@ for the server's textual response.
 recent output. For matching a response or reacting continuously, use
 `server.console`; the next lesson covers it.
 
-## Guided Example
+## Build a Command Workflow
 
 ```python
 server.sendCommand('say Maintenance starts in five minutes')
 print(server.getLogs(lines=20))
 ```
 
-## Exercise
-
-Send the Minecraft command `say Hello World`, then restart the server. Add a
-state check so the command is sent only while the server is online.
-
-Hint: `sendCommand()` does not need a leading slash.
-
-## Answer
-
 ```python
-if server.isOnline():
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  if server.isOnline():
     server.sendCommand('say Hello World')
     server.restart()
-else:
+  else:
     print('Start the server before sending the command')
 ```
+
+The command is sent without a leading slash. This example couples the
+announcement and restart for demonstration; operational scripts should keep
+these decisions separate when a message must not trigger a restart.
 
 ## Common Mistakes
 
@@ -82,4 +82,4 @@ Next: [08 Using the Console](08_Using_The_Console.md)
 Previous: [06 Power Actions](06_Power_Actions.md)
 Next: [08 Using the Console](08_Using_The_Console.md)
 Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)
-Related Examples: [command answer](../../examples/tutorials/07_sending_commands/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

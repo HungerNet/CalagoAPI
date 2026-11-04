@@ -36,41 +36,38 @@ six fields including seconds. Action durations and timeouts are milliseconds.
 `createSchedule()` returns a `Schedule` object that can be enabled, run, or
 updated.
 
-## Guided Example
+## Build a Backup Schedule
+
+Schedules are made of three parts: a trigger, a condition, and ordered action
+steps. Begin by importing the builders, connecting to the panel, and selecting
+the server that will own the schedule:
 
 ```python
-from calagoapi import actions, conditions, triggers
+import os
+from calagoapi import Panel, actions, conditions, triggers
 
-schedule = server.schedules.createSchedule(
-    'Nightly save',
-    triggers=[triggers.cron('0 0 3 * * *')],
-    condition=conditions.serverState('running'),
-    steps=[actions.sendCommand('save-all')],
-)
-print(schedule.getName(), schedule.isEnabled())
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
 ```
 
-## Exercise
-
-Create a disabled schedule called `Tutorial backup` that runs every day at
-03:00 and creates a backup named `nightly`. Do not add a restart action.
-
-Hint: `enabled=False`; use `actions.createBackup()` for the step.
-
-## Answer
+The six-field cron expression below runs daily at 03:00. The condition makes
+the backup conditional on the server already running. A backup action is the
+only step, so the schedule does not restart the server:
 
 ```python
-from calagoapi import actions, conditions, triggers
-
-schedule = server.schedules.createSchedule(
+  schedule = server.schedules.createSchedule(
     'Tutorial backup',
     triggers=[triggers.cron('0 0 3 * * *')],
     condition=conditions.serverState('running'),
     steps=[actions.createBackup('nightly')],
     enabled=False,
-)
-print(schedule.getName(), schedule.isEnabled())
+  )
+  print(schedule.getName(), schedule.isEnabled())
 ```
+
+New schedules are created disabled here so an operator can inspect the
+trigger and steps before enabling them. Schedule action durations and timeouts
+are expressed in milliseconds.
 
 ## Common Mistakes
 
@@ -94,4 +91,4 @@ Next: [17 Schedules Review](17_Schedules_Review.md)
 Previous: [15 Databases Review](15_Databases_Review.md)
 Next: [17 Schedules Review](17_Schedules_Review.md)
 Reference Docs: [Schedules](../reference/schedules.md)
-Related Examples: [schedule answer](../../examples/tutorials/16_schedules/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

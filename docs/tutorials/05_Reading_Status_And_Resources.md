@@ -35,33 +35,64 @@ when you need the exact label. `getRAM()` returns MiB by default,
 `getRAMLimit()` returns the limit, `getCPU()` returns percent, and
 `getUptime(formatted=True)` returns a readable duration.
 
-## Guided Example
+## Build the Script
+
+Start with the connection settings. Keeping these in environment variables
+means the script can be shared without sharing a credential:
 
 ```python
-if server.isOnline():
-    print(server.getCPU(), '%')
-    print(server.getRAM(), '/', server.getRAMLimit(), 'MiB')
-else:
-    print('power state:', server.getStatus())
+import os
+from calagoapi import Panel
+
+url = os.environ['CALAGOPUS_URL']
+api_key = os.environ['CALAGOPUS_API_KEY']
+server_id = os.environ['SERVER_ID']
 ```
 
-## Exercise
-
-Print the current state. If the server is online, print RAM used and the limit
-in MiB. Refresh resources before reading them a second time.
-
-Hint: call `server.refresh()` to update the resource cache.
-
-## Answer
+Next, open the panel and ask its server manager for one server. The manager
+returns a `GenericServer` object, which will own the status and resource calls:
 
 ```python
-state = server.getStatus()
-print('state:', state)
-if server.isOnline():
+with Panel(url=url, api_key=api_key) as panel:
+  server = panel.servers.getServer(server_id)
+```
+
+Read status once, then use that value to decide which measurements make sense.
+`getStatus()` fetches a fresh resource snapshot as well, so the resource
+getters below can use the same cached snapshot:
+
+```python
+  state = server.getStatus()
+  print('state:', state)
+
+  if state == 'running':
+    print('CPU:', server.getCPU(), '%')
     print('RAM:', server.getRAM(), '/', server.getRAMLimit(), 'MiB')
-    server.refresh()
-    print('fresh CPU:', server.getCPU(), '%')
+    print('uptime:', server.getUptime(formatted=True))
 ```
+
+## Complete Script
+
+```python
+import os
+from calagoapi import Panel
+
+with Panel(
+  url=os.environ['CALAGOPUS_URL'],
+  api_key=os.environ['CALAGOPUS_API_KEY'],
+) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  state = server.getStatus()
+  print('state:', state)
+
+  if state == 'running':
+    print('CPU:', server.getCPU(), '%')
+    print('RAM:', server.getRAM(), '/', server.getRAMLimit(), 'MiB')
+    print('uptime:', server.getUptime(formatted=True))
+```
+
+If the script runs for a while and needs a newer measurement, call
+`server.refresh()` before reading the resource getters again.
 
 ## Common Mistakes
 
@@ -87,4 +118,4 @@ Next: [06 Power Actions](06_Power_Actions.md)
 Previous: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)
 Next: [06 Power Actions](06_Power_Actions.md)
 Reference Docs: [Servers](../reference/servers.md)
-Related Examples: [status answer](../../examples/tutorials/05_status/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

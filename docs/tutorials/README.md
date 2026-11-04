@@ -1,8 +1,8 @@
 # Tutorial Track
 
-Read these tutorials in order. Each lesson introduces only concepts from
-earlier lessons, includes a practice exercise and full answer, and points to
-the relevant reference page. Exercises are not automatically graded.
+Read these tutorials in order. Each lesson introduces concepts from earlier
+lessons, walks through a feature-specific script, and points to the relevant
+reference page and runnable example.
 
 ## Start Here
 
@@ -41,6 +41,6 @@ the relevant reference page. Exercises are not automatically graded.
 26. [Final Review](26_Final_Review.md)
 27. [Where to Go Next](27_Where_To_Go_Next.md)
 
-Runnable code examples are in [examples/tutorials](../../examples/tutorials/README.md).
-Use the [API reference](../reference/README.md) for quick method and parameter
-lookups while working through the course.
+Code is included inline in each lesson so the walkthrough and explanation stay
+together. Use the [API reference](../reference/README.md) for quick method and
+parameter lookups while working through the course.

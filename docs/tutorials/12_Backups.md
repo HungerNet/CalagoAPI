@@ -35,32 +35,52 @@ Call `waitUntilComplete(timeout=...)`, then inspect `isSuccessful()`,
 `getSize()`, and `getChecksum()`. `restore()` and `delete()` modify or remove
 server data and should be deliberate.
 
-## Guided Example
+## Build a Backup Workflow
+
+Start from the panel and select the server whose files need protection. A
+backup is created from that server's backup manager:
 
 ```python
-backup = server.backups.createBackup('before-maintenance')
-backup.waitUntilComplete(timeout=3600)
-if backup.isSuccessful():
-    print(backup.getName(), backup.getSize(formatted=True))
-else:
-    print('backup failed:', backup.getStatus())
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  backup = server.backups.createBackup('before-maintenance')
 ```
 
-## Exercise
-
-Create a backup named `tutorial-checkpoint`, wait up to one hour, and print
-whether it succeeded. Do not restore or delete it.
-
-Hint: check `isSuccessful()` only after waiting.
-
-## Answer
+Creation starts a background operation. Wait before trusting the backup, then
+branch on its final status:
 
 ```python
-backup = server.backups.createBackup('tutorial-checkpoint')
-backup.waitUntilComplete(timeout=3600)
-print('successful:', backup.isSuccessful())
-print('status:', backup.getStatus())
+  backup.waitUntilComplete(timeout=3600)
+  if backup.isSuccessful():
+    print('created:', backup.getName())
+    print('size:', backup.getSize(formatted=True))
+  else:
+    print('backup did not succeed:', backup.getStatus())
 ```
+
+## Complete Script
+
+```python
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  backup = server.backups.createBackup('before-maintenance')
+  backup.waitUntilComplete(timeout=3600)
+
+  if backup.isSuccessful():
+    print('created:', backup.getName())
+    print('size:', backup.getSize(formatted=True))
+  else:
+    print('backup did not succeed:', backup.getStatus())
+```
+
+This workflow deliberately does not restore or delete anything. Those actions
+change or remove data and should be handled separately.
 
 ## Common Mistakes
 
@@ -85,4 +105,4 @@ Next: [13 Backups Review](13_Backups_Review.md)
 Previous: [11 Files Review](11_Files_Review.md)
 Next: [13 Backups Review](13_Backups_Review.md)
 Reference Docs: [Backups](../reference/backups.md)
-Related Examples: [backup answer](../../examples/tutorials/12_backups/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

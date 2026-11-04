@@ -8,8 +8,9 @@
 
 ## Prerequisites
 
-[22 Admin API](22_Admin_API.md). Review [Backups](12_Backups.md) and
-[Schedules](16_Schedules.md).
+[17 Schedules Review](17_Schedules_Review.md). Review [Backups](12_Backups.md)
+and [Schedules](16_Schedules.md). The API key needs backup and schedule
+permissions for the target server.
 
 ## Estimated Time
 
@@ -36,39 +37,40 @@ The script retrieves a `GenericServer` through `panel.servers`, then uses its
 filters execution, and `actions.createBackup()` is the only step. It creates
 the schedule disabled so an operator can inspect it before enabling.
 
-## Guided Example
-
-Architecture:
+## Architecture
 
 ```text
 Environment credentials -> Panel -> ServerManager -> GenericServer
   -> ScheduleManager -> daily trigger -> condition -> backup action
 ```
 
-Design decisions: use a stable schedule name, create it disabled, keep secrets
-outside source, and wait for each backup before treating it as valid. Retention
-can be added later with a backup group and an explicit policy.
+Python configures the workflow once; Calagopus owns recurring execution. Use a
+stable schedule name, check for an existing schedule before creating one, and
+leave new automation disabled until its trigger and action have been reviewed.
+Retention can be added later with a backup group and an explicit policy.
 
-## Exercise
+## Build the Script in Stages
 
-Build an idempotent setup script that finds a server by ID and creates a
-disabled daily backup schedule only when it does not already exist.
-
-Hint: use `getSchedule(name)` before `createSchedule()`.
-
-## Answer
+First create the connection and resolve the target server. Keeping the server
+ID in configuration avoids depending on a display name:
 
 ```python
 import os
 from calagoapi import Panel, actions, conditions, triggers
 
-schedule_name = 'Nightly tutorial backup'
 with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
     server = panel.servers.getServer(os.environ['SERVER_ID'])
-    schedule = server.schedules.getSchedule(schedule_name)
+```
+
+Give the schedule a stable name and look it up before creating it. This makes
+running the setup script repeatedly safe from duplicate schedules:
+
+```python
+    name = 'Nightly tutorial backup'
+    schedule = server.schedules.getSchedule(name)
     if schedule is None:
         schedule = server.schedules.createSchedule(
-            schedule_name,
+            name,
             triggers=[triggers.cron('0 0 3 * * *')],
             condition=conditions.serverState('running'),
             steps=[actions.createBackup('nightly')],
@@ -79,16 +81,15 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
         print('schedule already exists:', schedule.getName())
 ```
 
-After reviewing the trigger, condition, and backup name in the panel, an
-authorized operator can enable the schedule. To verify a run, list backups and
-wait for the backup to finish before checking `isSuccessful()`.
+The trigger uses a six-field cron expression. The condition prevents the
+backup step from running unless the server is already running.
 
 ## Common Mistakes
 
-- Running setup repeatedly without checking for an existing schedule.
-- Enabling automation before reviewing its cron expression and action.
+- Creating a duplicate schedule every time the setup script runs.
+- Enabling automation before reviewing its trigger and action.
 - Assuming a started backup is already complete.
-- Adding a restore or `truncate_directory=True` to a routine backup workflow.
+- Adding restore or `truncate_directory=True` to a routine backup workflow.
 
 ## What You Learned
 
@@ -106,4 +107,4 @@ Next: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)
 Previous: [22 Admin API](22_Admin_API.md)
 Next: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)
 Reference Docs: [Backups](../reference/backups.md), [Schedules](../reference/schedules.md)
-Related Examples: [backup project answer](../../examples/tutorials/23_nightly_backup/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

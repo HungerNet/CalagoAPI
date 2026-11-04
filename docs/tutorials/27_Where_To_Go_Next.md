@@ -34,38 +34,37 @@ users and authors can continue with [extension guides](../extensions/01_Extensio
 Contributors can explore the [architecture overview](../architecture/Architecture.md),
 then the implementation-focused pages and the test suite.
 
-## Guided Example
+## Add Error Handling to a Script
 
-Suggested next steps:
+When adapting a walkthrough, keep the same object flow but make failures
+visible to the caller. CalagoAPI raises typed exceptions, so handle a missing
+server separately from other API errors:
 
-1. Turn a project answer into a small module with configuration and logging.
-2. Add explicit handling for timeouts, permission failures, and retryable
-   errors.
-3. Test the workflow against a fake panel before using a live panel.
-4. Review the matching reference page before adding a new API call.
+```python
+import os
+from calagoapi import CalagoAPIError, NotFoundError, Panel
 
-## Exercise
+try:
+   with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+      server = panel.servers.getServer(os.environ['SERVER_ID'])
+      print(server.getName(), server.getStatus())
+except NotFoundError:
+   print('The configured server ID was not found or is not accessible.')
+except CalagoAPIError as error:
+   print('CalagoAPI request failed:', error.status_code, error.message)
+```
 
-Choose one project and write down: the API permissions it needs, which
-operations change state, how it detects failure, and where its secrets are
-stored.
-
-Hint: separate read-only setup from actions such as power changes, writes, and
-restores.
-
-## Answer
-
-Answers depend on the chosen project. A sound plan names the required key
-permissions, marks every state-changing call, checks each asynchronous result,
-uses protected environment/secret storage, and describes what happens when an
-operation fails or times out.
+Then review the matching reference page for exact parameters, request the
+minimum permissions needed, and test against a fake or non-production panel
+before enabling state-changing actions. The SDK already retries rate limits
+and selected transient read failures; writes are not retried automatically.
 
 ## Common Mistakes
 
 - Copying an example into production without adding configuration validation,
   logging, and failure handling.
 - Giving a service account broader permissions than its workflow requires.
-- Treating tutorial answers as the only way to structure an application.
+- Treating tutorial scripts as the only way to structure an application.
 
 ## What You Learned
 
@@ -84,4 +83,4 @@ Next: Explore the [API reference](../reference/README.md),
 Previous: [26 Final Review](26_Final_Review.md)
 Next: [API Reference](../reference/README.md)
 Reference Docs: [API Reference](../reference/README.md)
-Related Examples: [next steps answer](../../examples/tutorials/27_where_to_go_next/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

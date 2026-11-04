@@ -36,28 +36,57 @@ explicit review step.
 provides fresh status and scoped file methods. `panel.admin.getStats()` is a
 privileged read and will fail for a non-admin key.
 
-## Guided Example
-
-Architecture:
+## Architecture
 
 ```text
 Panel -> ServerManager -> many GenericServer objects -> per-server checks
   -> Admin namespace -> panel-level statistics -> report
 ```
 
-Design decisions: gather the accessible inventory from the user manager,
-perform server-scoped checks through each server object, and keep the admin
-call separate so permission failure is easy to understand.
+The report is read-only. It gathers the inventory visible to the current key,
+performs server-scoped checks through each server's managers, and optionally
+adds one panel-wide admin statistic. Keeping admin access separate makes its
+permission requirement clear.
 
-## Exercise
+## Build the Inventory in Stages
 
-Create a report containing each accessible server's name, short ID, state, and
-whether `/server.properties` exists. Then include admin panel statistics.
-Do not modify any server.
+Ask `panel.servers` for the servers visible to this API key. The result respects
+the caller's access; it does not automatically include every server in the
+panel:
 
-Hint: access each server's file manager through that server object.
+```python
+import os
+from calagoapi import Panel
 
-## Answer
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+    servers = panel.servers.getServers()
+```
+
+For each server, collect its state and check the file through that server's
+file manager. Keeping the results in dictionaries makes the report easy to
+serialize or render later:
+
+```python
+    report = []
+    for server in servers:
+        report.append({
+            'name': server.getName(),
+            'short_id': server.getShortId(),
+            'status': server.getStatus(),
+            'has_properties': server.files.exists('/server.properties'),
+        })
+
+    for row in report:
+        print(row)
+```
+
+With an admin key, add panel-wide statistics in a separate section:
+
+```python
+    print('panel stats:', panel.admin.getStats())
+```
+
+## Complete Script
 
 ```python
 import os
@@ -76,24 +105,18 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
     for row in report:
         print(row)
 
-    try:
-        print('panel stats:', panel.admin.getStats())
-    except Exception as error:
-        print('admin statistics unavailable:', type(error).__name__)
+    print('panel stats:', panel.admin.getStats())
 ```
 
 ## Common Mistakes
 
 - Assuming a user's server listing includes every server in the panel.
-- Creating a resource manager separately instead of using the owning server's
-  `files` property.
-- Catching every error silently. The example identifies admin access failure
-  but still names its exception type.
-- Adding write actions to a fleet script before validating its target set.
+- Creating a resource manager separately instead of using `server.files`.
+- Giving a fleet script write access before validating its target set.
 
 ## What You Learned
 
-- Server iteration begins with the panel's manager and respects key access.
+- Server iteration begins with the panel manager and respects key access.
 - Each server retains its own resource managers.
 - Panel-wide administration is distinct from user-visible server operations.
 
@@ -106,4 +129,4 @@ Next: [26 Final Review](26_Final_Review.md)
 Previous: [24 Project 2: Server Monitor](24_Project_2_Server_Monitor.md)
 Next: [26 Final Review](26_Final_Review.md)
 Reference Docs: [Servers](../reference/servers.md), [Files](../reference/files.md), [Administration](../reference/admin.md)
-Related Examples: [multi-server answer](../../examples/tutorials/25_multi_server_automation/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

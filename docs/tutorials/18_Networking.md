@@ -38,30 +38,30 @@ returns the main allocation. Firewall operations depend on node support.
 Tunnel operations depend on tunnel support. Creating or deleting network
 resources changes reachability and should be reviewed before applying.
 
-## Guided Example
+## Build a Network Inventory
+
+Begin with a specific server, then use its network manager to inspect
+allocations. The primary allocation can be absent, so handle that case before
+printing its address:
 
 ```python
-for allocation in server.network.getAllocations():
-    print(allocation.getAddress(), allocation.isPrimary())
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+    server = panel.servers.getServer(os.environ['SERVER_ID'])
+    primary = server.network.getPrimaryAllocation()
+    if primary is not None:
+        print('primary:', primary.getAddress())
+
+    for allocation in server.network.getAllocations():
+        print(allocation.getAddress(), allocation.getNotes())
 ```
 
-## Exercise
-
-Print the primary allocation address if present, then list each allocation's
-address and notes. Do not create or delete allocations.
-
-Hint: `getPrimaryAllocation()` can return `None`.
-
-## Answer
-
-```python
-primary = server.network.getPrimaryAllocation()
-if primary is not None:
-    print('primary:', primary.getAddress())
-
-for allocation in server.network.getAllocations():
-    print(allocation.getAddress(), allocation.getNotes())
-```
+This inventory makes no changes. Before creating or deleting an allocation,
+check the server's allocation limits and identify which public address or
+service depends on it. Firewall and tunnel operations also depend on node
+support.
 
 ## Common Mistakes
 
@@ -85,4 +85,4 @@ Next: [19 Minecraft Servers](19_Minecraft_Servers.md)
 Previous: [17 Schedules Review](17_Schedules_Review.md)
 Next: [19 Minecraft Servers](19_Minecraft_Servers.md)
 Reference Docs: [Network](../reference/network.md)
-Related Examples: [network answer](../../examples/tutorials/18_networking/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

@@ -14,12 +14,17 @@ pip install calagoapi-version-changer
 ```
 
 ```python
+import os
+from calagoapi import Panel
 from calagoapi.extensions import enable
 
 enable('version_changer')
-server = panel.servers.getMinecraftServer('abc123')
-builds = server.getBuilds('PAPER', '1.21.1', page=1, per_page=5)
-print(server.installedVersion)
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+    server = panel.servers.getMinecraftServer(os.environ['SERVER_ID'])
+    builds = server.getBuilds('PAPER', '1.21.1', page=1, per_page=5)
+    print('installed:', server.getInstalledVersion())
+    for build in builds:
+        print(build)
 ```
 
 ## Build selection and install
@@ -30,29 +35,11 @@ build object to `installVersion()`. `truncate_directory=True` requests a clean
 install and may delete server files; the default keeps them. Consider making a
 backup first and waiting for it to complete.
 
-The extension also provides `getInstalledVersion()`, `isUpToDate()`, and
-`updateVersion()`. Admin settings are available through
-`panel.admin.extensions` with an admin API key.
-
-## Exercise
-
-Enable the extension, read the installed version, and list one page of Paper
-builds for a version you select. Do not install a build in an unattended
-exercise.
-
-Hint: `getBuilds()` accepts `page` and `per_page`.
-
-## Answer
-
-```python
-from calagoapi.extensions import enable
-
-enable('version_changer')
-server = panel.servers.getMinecraftServer(server_id)
-print('installed:', server.getInstalledVersion())
-for build in server.getBuilds('PAPER', '1.21.1', page=1, per_page=5):
-    print(build)
-```
+The extension also provides `isUpToDate()` and `updateVersion()`. To install a
+build, pass the selected build object to `installVersion()`. Treat that call as
+a separate deployment step: review the build, create and verify a backup, and
+understand that `truncate_directory=True` may remove server files. Admin
+settings are available through `panel.admin.extensions` with an admin API key.
 
 ## Common Mistakes
 

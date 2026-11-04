@@ -34,33 +34,40 @@ and `writeFile(path, content)` creates or replaces a file. `exists(path)` checks
 for a file or directory. Use `getFile()` when you need metadata such as size or
 modified time.
 
-## Guided Example
+## Build a File Inspection Script
+
+Start with the familiar panel and server lookup. The server owns `files`, so
+the path is interpreted inside this server rather than on the computer running
+Python:
 
 ```python
-for item in server.files.listFiles('/'):
-    print(item.getName(), 'directory' if item.isDirectory() else 'file')
+import os
+from calagoapi import Panel
 
-if server.files.exists('/server.properties'):
-    print(server.files.readFile('/server.properties')[:200])
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
 ```
 
-## Exercise
-
-List the root directory and print each item's name. If `/server.properties`
-exists, read it and print only the first three lines.
-
-Hint: `str.splitlines()` turns file text into lines.
-
-## Answer
+List the root directory. Each result is a `File` object, allowing the script to
+distinguish directories and files without another lookup:
 
 ```python
-for item in server.files.listFiles('/'):
-    print(item.getName())
+  for item in server.files.listFiles('/'):
+    kind = 'directory' if item.isDirectory() else 'file'
+    print(kind, item.getName())
+```
 
-if server.files.exists('/server.properties'):
+Before reading an optional configuration file, check for it. `readFile()` then
+returns text that ordinary Python string methods can process:
+
+```python
+  if server.files.exists('/server.properties'):
     text = server.files.readFile('/server.properties')
     print('\n'.join(text.splitlines()[:3]))
 ```
+
+This inspection workflow is read-only. Add `writeFile()` only when you are
+ready to replace or create server-side contents.
 
 ## Common Mistakes
 
@@ -85,4 +92,4 @@ Next: [11 Files Review](11_Files_Review.md)
 Previous: [09 Console Review](09_Console_Review.md)
 Next: [11 Files Review](11_Files_Review.md)
 Reference Docs: [Files](../reference/files.md)
-Related Examples: [files answer](../../examples/tutorials/10_working_with_files/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

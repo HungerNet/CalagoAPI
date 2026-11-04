@@ -33,34 +33,31 @@ understand which database and table you are addressing.
 `DatabaseInstance` objects. `db.explorer.query(sql, read_only=True)` runs a
 read-only query by default.
 
-## Guided Example
+## Build a Database Inventory
+
+Use the server's `DatabaseManager` to inspect each database type without
+printing credentials. Hosted database details and dedicated instance
+lifecycle are separate, so the script reports them in separate loops:
 
 ```python
-for db in server.databases.getDatabases():
-    print(db.getName(), bool(db.getConnectionString()))
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+
+  print('hosted databases:')
+  for database in server.databases.getDatabases():
+    print(database.getName(), database.getSize(formatted=True))
+
+  print('database instances:')
+  for instance in server.databases.getInstances():
+    print(instance.getName(), instance.getStatus())
 ```
 
-Do not print connection strings in a shared terminal; the boolean above only
-demonstrates whether one is available.
-
-## Exercise
-
-1. Which object owns `getDatabases()`?
-2. What is a database instance used for?
-3. What is the default value of the explorer query's `read_only` argument?
-4. Write code that lists instance names and statuses.
-
-Hint: use `getInstances()` and inspect the methods on each instance.
-
-## Answer
-
-1. `server.databases`, a `DatabaseManager`.
-2. A dedicated database server with its own databases, users, and lifecycle.
-3. `True`.
-4. ```python
-   for instance in server.databases.getInstances():
-       print(instance.getName(), instance.getStatus())
-   ```
+When inspecting table data, use the database's `explorer`. Its raw SQL query
+is read-only by default; keep that default unless the workflow explicitly
+needs to write data.
 
 ## Common Mistakes
 
@@ -84,4 +81,4 @@ Next: [16 Schedules](16_Schedules.md)
 Previous: [14 Databases](14_Databases.md)
 Next: [16 Schedules](16_Schedules.md)
 Reference Docs: [Databases](../reference/databases.md)
-Related Examples: [database review answer](../../examples/tutorials/15_databases_review/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

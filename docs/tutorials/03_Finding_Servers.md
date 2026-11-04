@@ -35,7 +35,7 @@ names can change and need not be unique.
 `getServer(id)` fetches one server by UUID or short ID, and
 `getServerByName(name)` returns an exact match or `None`.
 
-## Guided Example
+## Build a Server Lookup
 
 ```python
 for server in panel.servers.getServers(search='survival'):
@@ -46,24 +46,21 @@ if server is None:
     print('No exact match')
 ```
 
-## Exercise
-
-List the servers your key can access and print each name and short ID. Then
-look up one by the ID stored in `SERVER_ID`.
-
-Hint: use `getServers()` for the list and `getServer()` for one known ID.
-
-## Answer
-
 ```python
 import os
+from calagoapi import Panel
 
-for item in panel.servers.getServers():
-    print(item.getName(), item.getShortId())
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  for server in panel.servers.getServers(search='survival'):
+    print(server.getName(), server.getShortId())
 
-server = panel.servers.getServer(os.environ['SERVER_ID'])
-print('selected:', server.getName())
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  print('selected:', server.getName())
 ```
+
+Use the list for discovery and a known UUID or short ID for repeatable jobs.
+`getServerByName()` is convenient for interactive tools, but exact names can
+change, so production automation usually stores an ID in configuration.
 
 ## Common Mistakes
 
@@ -88,4 +85,4 @@ Next: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)
 Previous: [02 Creating a Panel](02_Creating_A_Panel.md)
 Next: [04 Understanding Server Objects](04_Understanding_Server_Objects.md)
 Reference Docs: [Servers](../reference/servers.md)
-Related Examples: [server listing answer](../../examples/tutorials/03_finding_servers/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

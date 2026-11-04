@@ -34,49 +34,49 @@ Use the API reference to look up signatures and details: [servers](../reference/
 [schedules](../reference/schedules.md), [async](../reference/async.md), and
 [administration](../reference/admin.md).
 
-## Guided Example
+## Object Flow
 
 ```text
 Panel -> Manager -> Server -> Resource
                  -> Automation -> Extension -> Administration
 ```
 
-## Exercise
+## Build a Server Readiness Report
 
-1. What object owns `getServers()`?
-2. Where should a file listing for one server begin?
-3. What is the difference between a schedule trigger and condition?
-4. What should code do after `createBackup()` before trusting the backup?
-5. What is the safest way to use an API key in a script?
-6. What would this code do?
+This final script follows the object hierarchy from connection to resources.
+It gets a server through the panel manager, reads its power state, checks a
+server-owned file, and asks the backup manager for the latest successful
+recovery point:
 
-   ```python
-   backup = server.backups.createBackup('pre-change')
-   backup.waitUntilComplete(timeout=3600)
-   if backup.isSuccessful():
-       server.restart()
-   ```
+```python
+import os
+from calagoapi import Panel
 
-Hint: Follow the object chain and read each line in order.
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+   server = panel.servers.getServer(os.environ['SERVER_ID'])
+   state = server.getStatus()
+   has_properties = server.files.exists('/server.properties')
+   backup = server.backups.getLatestBackup()
 
-## Answer
+   report = {
+      'name': server.getName(),
+      'status': state,
+      'has_properties': has_properties,
+      'latest_successful_backup': backup.getName() if backup else None,
+      'ready_for_maintenance': state == 'running' and backup is not None,
+   }
+   print(report)
+```
 
-1. `panel.servers`, the `ServerManager`.
-2. `server.files.listFiles(...)`.
-3. A trigger starts evaluation; a condition decides whether the workflow may
-   proceed.
-4. Wait for completion and check success.
-5. Load it from a secret store or environment variable and never log it.
-6. It starts a backup, waits up to an hour, and restarts the server only if
-   that backup succeeds. A production workflow should also handle timeout and
-   backup failure explicitly.
+The readiness condition is only an example policy. A real maintenance tool
+should also check the expected maintenance window, permissions, and any
+application-specific health signals. The report itself makes no changes.
 
 ## Common Mistakes
 
 - Calling a resource method from the wrong manager.
 - Treating a request's return as proof that a background operation completed.
-- Writing fleet automation without dry review, target checks, or least
-  privilege.
+- Writing fleet automation without validating targets and permissions.
 - Assuming optional extensions are installed and enabled automatically.
 
 ## What You Learned
@@ -94,4 +94,4 @@ Next: [27 Where to Go Next](27_Where_To_Go_Next.md)
 Previous: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)
 Next: [27 Where to Go Next](27_Where_To_Go_Next.md)
 Reference Docs: [API Reference](../reference/README.md)
-Related Examples: [final review answer](../../examples/tutorials/26_final_review/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

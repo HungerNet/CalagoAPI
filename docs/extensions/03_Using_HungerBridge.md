@@ -15,36 +15,20 @@ Create a HungerBridge token in the mod and keep the secret outside source
 control:
 
 ```python
+import os
+from calagoapi import Panel
 from calagoapi.extensions import enable
 
-enable('hungerbridge', config={'token': HUNGERBRIDGE_TOKEN})
-server = panel.servers.getMinecraftServer('abc123')
-print(server.hungerbridge.players())
-print(server.hungerbridge.tps())
+enable('hungerbridge', config={'token': os.environ['HUNGERBRIDGE_TOKEN']})
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getMinecraftServer(os.environ['SERVER_ID'])
+  print('players:', server.hungerbridge.players())
+  print('tps:', server.hungerbridge.tps())
 ```
 
 The service also supports `ping()`, `status()`, `run()`, system metrics, and
 `install()`. Installing the mod changes server files, so confirm the server
 type and Minecraft version before running it, then restart the server.
-
-## Exercise
-
-Enable HungerBridge using an environment-provided token, then print the player
-list and TPS response. Do not print or log the token.
-
-Hint: read the token with `os.environ`; pass it only in the `config` mapping.
-
-## Answer
-
-```python
-import os
-from calagoapi.extensions import enable
-
-enable('hungerbridge', config={'token': os.environ['HUNGERBRIDGE_TOKEN']})
-server = panel.servers.getMinecraftServer(server_id)
-print('players:', server.hungerbridge.players())
-print('tps:', server.hungerbridge.tps())
-```
 
 ## Common Mistakes
 

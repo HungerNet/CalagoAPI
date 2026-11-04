@@ -4,7 +4,7 @@
 
 - How the course is organized
 - The CalagoAPI object hierarchy
-- How to work through exercises without an automatic grader
+- How lessons and reference pages support different learning needs
 
 ## Prerequisites
 
@@ -30,10 +30,10 @@ objects; servers expose resources such as files, backups, databases, schedules,
 and network settings. Later lessons combine these pieces into automation,
 extensions, and administration.
 
-Each tutorial is deliberately small. Read the explanation, type the exercise
-yourself, compare it with the answer, then continue. No runner or automatic
-validation is required. The [reference section](../reference/README.md) is a
-lookup manual, not a replacement for the learning order.
+Each tutorial explains a feature by building a script around it. Follow the
+code blocks in order and use the runnable companion example when you want to
+see the complete workflow. The [reference section](../reference/README.md) is
+a lookup manual, not a replacement for the learning order.
 
 ## API Explanation
 
@@ -41,25 +41,24 @@ The course begins at `Panel`, the connection and lifetime boundary. A call such
 as `panel.servers.getServer(...)` goes through a manager and returns a server
 object. That object owns managers such as `server.files` and `server.backups`.
 
-## Guided Example
+## Follow One Object Through the API
 
-```text
-Panel -> panel.servers -> GenericServer -> server.files / server.backups / ...
+Every script starts from a `Panel`. The panel exposes a `ServerManager` at
+`panel.servers`; that manager finds a `GenericServer`. The server then owns
+resource managers such as `server.files` and `server.backups`.
+
+```python
+from calagoapi import Panel
+
+panel = Panel(url='https://panel.example.com', api_key='...')
+server = panel.servers.getServer('server-id')
+files = server.files
 ```
 
-## Exercise
-
-In your own words, explain what each part represents: `Panel`, `ServerManager`,
-`GenericServer`, and `FileManager`.
-
-Hint: Think about connection, lookup, one server, and one server resource.
-
-## Answer
-
-- `Panel` represents a connection to a Calagopus panel.
-- `ServerManager` looks up and lists servers accessible to that panel key.
-- `GenericServer` represents one server and its actions and state.
-- `FileManager` manages files belonging to that server.
+The snippet shows the ownership path. In a real script, load credentials from
+the environment and close the connection with a context manager, as the next
+lessons demonstrate. The reference manual describes each object; the tutorials
+show how to combine them into a workflow.
 
 ## Common Mistakes
 
@@ -71,7 +70,7 @@ Hint: Think about connection, lookup, one server, and one server resource.
 ## What You Learned
 
 - The course follows Panel -> Managers -> Servers -> Resources.
-- Exercises are for practice and include full answers for review.
+- Runnable examples complement the walkthroughs without a grading runner.
 - The reference is available whenever you need a method lookup.
 
 ## Continue Learning
@@ -83,4 +82,4 @@ Next: [01 Installation](01_Installation.md)
 Previous: Start here
 Next: [01 Installation](01_Installation.md)
 Reference Docs: [Getting started](../reference/getting-started.md)
-Related Examples: [object model answer](../../examples/tutorials/00_introduction/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

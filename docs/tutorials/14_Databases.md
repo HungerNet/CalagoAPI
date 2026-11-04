@@ -36,31 +36,47 @@ databases. Use `getTemplates()` and `createInstance(template, name)` for a
 database instance. `Database.explorer` provides table, row, and SQL operations
 when supported.
 
-## Guided Example
+## Build a Hosted Database Setup
+
+Start from the selected server and list its hosted databases. The manager is
+scoped to that server, and each returned `Database` exposes safe metadata such
+as its name and size:
 
 ```python
-for database in server.databases.getDatabases():
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
+  databases = server.databases.getDatabases()
+  for database in databases:
     print(database.getName(), database.getSize(formatted=True))
 ```
 
-## Exercise
-
-List hosted databases and print their names. Then create a hosted database
-named `tutorial_stats` and store its connection string in a secret manager;
-do not print it.
-
-Hint: creation needs a configured host and may consume a server limit.
-
-## Answer
+For setup automation, check whether the named database already exists before
+creating it. Creation may consume a server limit and returns connection
+credentials, so do not print the connection string:
 
 ```python
-for database in server.databases.getDatabases():
-    print(database.getName())
-
-database = server.databases.createDatabase('tutorial_stats')
-connection_string = database.getConnectionString()
-# Save connection_string to your approved secret store; do not log it.
+  database = server.databases.getDatabaseByName('tutorial_stats')
+  if database is None:
+    database = server.databases.createDatabase('tutorial_stats')
+  connection_string = database.getConnectionString()
+  # Store this in an approved secret store; do not log it.
 ```
+
+## Choosing an Instance Instead
+
+For a dedicated database service, use the instance methods rather than
+`createDatabase()`:
+
+```python
+templates = server.databases.getTemplates()
+instance = server.databases.createInstance(templates[0], 'analytics')
+print(instance.getName(), instance.getStatus())
+```
+
+Review available templates and limits before creating an instance.
 
 ## Common Mistakes
 
@@ -84,4 +100,4 @@ Next: [15 Databases Review](15_Databases_Review.md)
 Previous: [13 Backups Review](13_Backups_Review.md)
 Next: [15 Databases Review](15_Databases_Review.md)
 Reference Docs: [Databases](../reference/databases.md)
-Related Examples: [database answer](../../examples/tutorials/14_databases/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

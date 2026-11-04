@@ -35,7 +35,7 @@ closes the connection even if the body raises an exception.
 returns the matching line, and `lines()` yields output. `waitFor()` raises
 `WaitTimeoutError` if no line matches before the deadline.
 
-## Guided Example
+## Build a Command-and-Response Script
 
 ```python
 with server.console as console:
@@ -44,21 +44,21 @@ with server.console as console:
     print(line)
 ```
 
-## Exercise
-
-Use the console context manager to send `list` and wait for output containing
-`There are` for up to 15 seconds. Print the matching line.
-
-Hint: call `waitFor()` on the console object, not the server.
-
-## Answer
-
 ```python
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+  server = panel.servers.getServer(os.environ['SERVER_ID'])
 with server.console as console:
     console.sendCommand('list')
     line = console.waitFor('There are', timeout=15)
     print(line)
 ```
+
+The console context opens a daemon websocket and closes it after the response
+is handled. Keep the command and expected output together so a timeout has a
+clear operational meaning.
 
 ## Common Mistakes
 
@@ -83,4 +83,4 @@ Next: [09 Console Review](09_Console_Review.md)
 Previous: [07 Sending Commands](07_Sending_Commands.md)
 Next: [09 Console Review](09_Console_Review.md)
 Reference Docs: [Live console](../reference/console.md), [Async](../reference/async.md)
-Related Examples: [console answer](../../examples/tutorials/08_using_the_console/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

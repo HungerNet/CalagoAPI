@@ -32,37 +32,30 @@ rename, or delete operation.
 `writeFile()` replaces or creates contents; `exists()` returns a boolean.
 Paths use `/` as the server root.
 
-## Guided Example
+## Build a Configuration Inspection
+
+Combine an existence check, file metadata, and a text read. The manager still
+belongs to the server object, and the path remains server-relative:
 
 ```python
-if server.files.exists('/eula.txt'):
-    print(server.files.readFile('/eula.txt'))
+import os
+from calagoapi import Panel
+
+with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
+   server = panel.servers.getServer(os.environ['SERVER_ID'])
+   path = '/server.properties'
+
+   if not server.files.exists(path):
+      print('configuration file is absent')
+   else:
+      file = server.files.getFile(path)
+      print('size:', file.getSize(formatted=True))
+      print(server.files.readFile(path)[:300])
 ```
 
-## Exercise
-
-1. What type of object does `server.files.listFiles('/')` contain?
-2. What does this code do?
-
-   ```python
-   server.files.writeFile('/notes.txt', 'hello')
-   ```
-
-3. Why is `/home/me/notes.txt` not automatically a local path?
-4. Write a check that prints `missing` only if `/logs/latest.log` is absent.
-
-Hint: server file paths are not local computer paths.
-
-## Answer
-
-1. A page/list of `File` objects.
-2. It creates or replaces `/notes.txt` on that server.
-3. Because `server.files` operates inside the server filesystem; a local file
-   is accessed with Python's local file APIs.
-4. ```python
-   if not server.files.exists('/logs/latest.log'):
-       print('missing')
-   ```
+`File` represents server-side metadata; it is not a local file handle. If you
+later add `writeFile()`, treat that as a separate state-changing operation and
+preserve unrelated configuration entries.
 
 ## Common Mistakes
 
@@ -85,4 +78,4 @@ Next: [12 Backups](12_Backups.md)
 Previous: [10 Working with Files](10_Working_With_Files.md)
 Next: [12 Backups](12_Backups.md)
 Reference Docs: [Files](../reference/files.md)
-Related Examples: [files review answer](../../examples/tutorials/11_files_review/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.

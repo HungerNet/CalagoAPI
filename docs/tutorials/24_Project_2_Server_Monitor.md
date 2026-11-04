@@ -36,27 +36,54 @@ then `getRAM()` and `getRAMLimit()` share that snapshot. `server.console` can
 register `onStatus()` and `onConsoleLine()` callbacks and start a reconnecting
 listener with `listen()`.
 
-## Guided Example
-
-Architecture:
+## Architecture
 
 ```text
 Panel -> Server -> status/resources + console listener -> notify adapter
 ```
 
-The loop below makes one resource request per iteration and reports only when
-RAM exceeds the chosen fraction of its limit. The notification function prints
-for demonstration; replace its body with a protected integration.
+The monitor samples state and resources, then emits notifications when a
+condition matters. Keep the notification transport separate from CalagoAPI so
+the example can be connected to an approved email, chat, or incident service.
 
-## Exercise
+## Build the Monitor in Stages
 
-Write a monitor that samples every 60 seconds, notifies when RAM usage exceeds
-90% of the limit, and reports console status changes. Ensure the console
-listener stops when the loop exits.
+Start with a notification adapter. Keeping it separate makes it easy to
+connect an approved chat or incident transport later without changing the
+monitoring logic:
 
-Hint: convert MiB values to a ratio and wrap the loop in `try/finally`.
+```python
+def notify(message):
+    print(message)  # Replace with your approved notification integration.
+```
 
-## Answer
+Next, register callbacks for live status changes and console lines. The
+console listener runs in the background while the monitor samples resources:
+
+```python
+server.console.onStatus(lambda state: notify(f'{server.getName()} state: {state}'))
+server.console.onConsoleLine(lambda line: print('console:', line))
+server.console.listen(background=True, history=False)
+```
+
+Each polling cycle checks whether the server is online, refreshes the resource
+snapshot, and compares RAM use with its limit. A `try/finally` guarantees the
+listener is stopped when the program exits:
+
+```python
+try:
+    while True:
+        if server.isOnline():
+            server.refresh()
+            used, limit = server.getRAM(), server.getRAMLimit()
+            if limit and used is not None and used / limit >= 0.9:
+                notify(f'{server.getName()} RAM at {used:.0f}/{limit:.0f} MiB')
+        time.sleep(60)
+finally:
+    server.console.stop()
+```
+
+## Complete Script
 
 ```python
 import os
@@ -64,7 +91,7 @@ import time
 from calagoapi import Panel
 
 def notify(message):
-    print(message)  # Replace with an approved notification transport.
+    print(message)
 
 with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as panel:
     server = panel.servers.getServer(os.environ['SERVER_ID'])
@@ -87,17 +114,16 @@ with Panel(os.environ['CALAGOPUS_URL'], os.environ['CALAGOPUS_API_KEY']) as pane
 
 ## Common Mistakes
 
-- Making a new status request for every metric when one refreshed resource
-  snapshot is sufficient.
-- Sending secrets or full console lines to a public channel without filtering.
-- Forgetting to call `stop()` on a background listener.
-- Treating an example `print()` as a production notification system.
+- Sampling resource values repeatedly without refreshing the shared snapshot.
+- Sending secrets or unfiltered console lines to a public channel.
+- Forgetting to stop the background console listener during shutdown.
+- Treating the `print()` notification adapter as a production delivery system.
 
 ## What You Learned
 
-- One server object can coordinate status, resources, and live console events.
-- Notification delivery should be isolated from monitoring decisions.
-- Background work needs an explicit shutdown path.
+- One server object coordinates status, resources, and live console events.
+- Notification delivery should be separate from monitoring decisions.
+- Long-running listeners need an explicit shutdown path.
 
 ## Continue Learning
 
@@ -108,4 +134,4 @@ Next: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automati
 Previous: [23 Project 1: Nightly Backup System](23_Project_1_Backup_System.md)
 Next: [25 Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)
 Reference Docs: [Servers](../reference/servers.md), [Live console](../reference/console.md)
-Related Examples: [monitor answer](../../examples/tutorials/24_server_monitor/answer.py)
+Related Examples: Code examples are embedded in this walkthrough.
