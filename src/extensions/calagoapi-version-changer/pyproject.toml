@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calagoapi-version-changer"
+version = "0.0.0"
+description = "CalagoAPI extension for the Calagopus Minecraft Version Changer: list and install Paper, Purpur, Fabric, Forge, ... builds."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "GPL-3.0" }
+
+authors = [
+    { name = "iFamished" }
+]
+
+keywords = ["calagopus", "calagoapi", "minecraft", "version-changer", "paper", "fabric", "extension"]
+
+dependencies = [
+    "calagoapi>=1.0.dev2",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Games/Entertainment",
+]
+
+[project.urls]
+Homepage = "https://github.com/HungerNet/CalagoAPI"
+Documentation = "https://github.com/HungerNet/CalagoAPI/tree/main/docs/learning/first_party_extensions.md"
+Source = "https://github.com/HungerNet/CalagoAPI/tree/main/src/extensions/calagoapi-version-changer"
+
+# how CalagoAPI finds the extension: enable('version_changer')
+[project.entry-points."calagoapi"]
+version_changer = "calagoapi_version_changer.extension:VersionChangerExtension"
+
+[tool.setuptools]
+packages = ["calagoapi_version_changer"]

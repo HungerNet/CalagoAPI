@@ -1,5 +1,6 @@
 import json
 
+from calagoapi.extensions.compat import migrated_to
 from calagoapi.servers.generic import GenericServer
 from calagoapi.utils.model import idOf
 from calagoapi.utils.exceptions import NotFoundError
@@ -10,8 +11,9 @@ class MinecraftServer(GenericServer):
     A Minecraft server.
 
     Adds Minecraft helpers on top of GenericServer: console shortcuts,
-    server.properties editing, EULA handling and the Calagopus Minecraft
-    Version Changer (install any Paper, Purpur, Fabric, Forge, ... build).
+    server.properties editing and EULA handling. The Calagopus Minecraft
+    Version Changer (install any Paper, Purpur, Fabric, Forge, ... build) is
+    provided by the calagoapi-version-changer extension.
 
     Args:
         panel: The Panel the server lives on.
@@ -26,6 +28,9 @@ class MinecraftServer(GenericServer):
         server.say('Restarting in 5 minutes!')
         server.setProperty('max-players', 50)
 
+        # pip install calagoapi-version-changer
+        from calagoapi.extensions import enable
+        enable('version_changer')
         build = server.getBuilds('PAPER', '1.21.1')[0]
         server.installVersion(build)
     '''
@@ -163,40 +168,32 @@ class MinecraftServer(GenericServer):
 
 
     # version changer
+    # Deprecated: these moved to the calagoapi-version-changer extension. They keep
+    # working (with an ExtensionDeprecationWarning) and are replaced by the extension's
+    # versions when enable('version_changer') is called.
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def getInstalledVersion(self) -> dict:
-        '''Returns the installed build (type, version, build), or None if unknown.'''
+        '''Deprecated, use the calagoapi-version-changer extension. Returns the installed build, or None.'''
         return self.panel.api.versions.installed(self.server_id)
 
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def getVersionTypes(self) -> dict:
-        '''Returns the available server types (PAPER, PURPUR, FABRIC, VANILLA, ...).'''
+        '''Deprecated, use the calagoapi-version-changer extension. Returns the available server types.'''
         return self.panel.api.versions.types(self.server_id)
 
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def getVersions(self, type: str, search: str = None, page: int = None, per_page: int = None):
-        '''
-        Returns the Minecraft versions available for a server type.
-
-        Example:
-            server.getVersions('PAPER', page=1, per_page=10)
-        '''
+        '''Deprecated, use the calagoapi-version-changer extension. Returns the versions of a server type.'''
         return self.panel.api.versions.versions(self.server_id, type, search, page, per_page)
 
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def getBuilds(self, type: str, version: str, search: str = None, page: int = None, per_page: int = None):
-        '''Returns the builds of a version, newest first.'''
+        '''Deprecated, use the calagoapi-version-changer extension. Returns the builds of a version.'''
         return self.panel.api.versions.builds(self.server_id, type, version, search, page, per_page)
 
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def installVersion(self, build, truncate_directory: bool = False, accept_eula: bool = True) -> None:
-        '''
-        Installs a server build.
-
-        Args:
-            build: Build dict from getBuilds() or build UUID.
-            truncate_directory: Delete every file first.
-            accept_eula: Accept the Minecraft EULA.
-
-        Example:
-            latest = server.getBuilds('PAPER', '1.21.1', page=1, per_page=1)[0]
-            server.installVersion(latest)
-        '''
+        '''Deprecated, use the calagoapi-version-changer extension. Installs a server build.'''
         build_id = build.get('uuid') if isinstance(build, dict) else idOf(build)
         return self.panel.api.versions.install(self.server_id, build_id, truncate_directory, accept_eula)
 

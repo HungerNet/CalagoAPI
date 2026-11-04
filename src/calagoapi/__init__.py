@@ -41,6 +41,8 @@ from .admin import (
     SubdomainDomain,
 )
 
+from . import extensions
+
 from .utils import (
     Page,
     convert,
@@ -187,4 +189,7 @@ __all__ = [
     'utils',
     'servers',
     'schedules',
+
+    # extension system
+    'extensions',
 ]

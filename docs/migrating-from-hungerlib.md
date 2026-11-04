@@ -32,7 +32,8 @@ scripts only need new imports and a new `Panel(...)` call.
 | `listBackups()` returned the raw response | returns a list of `Backup` objects | |
 | `createSchedule(payload)` | `createSchedule(name, triggers, condition, steps)` | Calagopus schedules are trigger/step based, see [Schedules](schedules.md) |
 | `createDatabase(name, remote, host)` | `createDatabase(name, host=None)` | Calagopus has no remote pattern |
-| `MinecraftServer(..., bridge)` | `MinecraftServer(panel, server_id, ...)` | HungerBridge is not part of CalagoAPI |
+| `MinecraftServer(..., bridge)` | `MinecraftServer(panel, server_id, ...)` plus `enable('hungerbridge')` | HungerBridge is the optional `calagoapi-hungerbridge` extension: `server.hungerbridge.run(...)`, `.players()`, ... (see [First-party extensions](learning/first_party_extensions.md)) |
+| `server.installVersion(...)` | the same, after `enable('version_changer')` | the version changer is the `calagoapi-version-changer` extension |
 | `server.stream` (via HungerBridge) | `server.streamConsole()`, `server.onConsoleLine(callback)`, `server.console` | console streaming comes from the Calagopus daemon, see [Live console](console.md) |
 | `panel.files.list(server_id, ...)` (internal API) | `server.files.listFiles(...)` | internal modules live in `panel.api` |
 

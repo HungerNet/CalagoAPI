@@ -4,6 +4,7 @@ import inspect
 
 from calagoapi.panel import Panel
 from calagoapi.console import Console
+from calagoapi.extensions.members import isExtensionObject
 from calagoapi.servers.generic import GenericServer
 from calagoapi.utils.model import Page
 from calagoapi.aio.console import AsyncConsole
@@ -19,6 +20,8 @@ def wrap(value):
         return AsyncServer(value)
     if isinstance(value, Console):
         return AsyncConsole(value.server)
+    if isExtensionObject(value):
+        return AsyncWrapper(value)
     if type(value).__module__.startswith('calagoapi.') and not isinstance(value, BaseException):
         return AsyncWrapper(value)
     return value
@@ -58,7 +61,21 @@ class AsyncWrapper:
     def __getattr__(self, name):
         value = getattr(self.target, name)
         if not inspect.ismethod(value):
-            return wrap(value)
+            wrapped = wrap(value)
+            if isExtensionObject(value):
+                # extension services and namespaces are cached, keep their wrapper too
+                object.__setattr__(self, name, wrapped)
+            return wrapped
+
+        if inspect.iscoroutinefunction(value):
+            # async extension methods run on the event loop, not in a worker thread
+            @functools.wraps(value)
+            async def coroutine(*args, **kwargs):
+                args = [unwrap(a) for a in args]
+                kwargs = {k: unwrap(v) for k, v in kwargs.items()}
+                return wrap(await value(*args, **kwargs))
+
+            return coroutine
 
         @functools.wraps(value)
         async def method(*args, **kwargs):

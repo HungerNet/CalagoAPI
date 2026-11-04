@@ -49,7 +49,8 @@ CalagoAPI needs Python 3.9+ and depends on `requests` and `websockets`.
 | **Schedules** | Triggers (cron, crash, console line, resource usage, ...), conditions, 30+ step actions, import/export, live status, with builder helpers |
 | **Network** | Allocations, subdomains, per-server firewall, tunnels between servers |
 | **Subusers** | Invite, permissions, ignored files |
-| **Minecraft** | Version changer (install any Paper/Purpur/Fabric/... build), `server.properties` editing, EULA, console helpers |
+| **Minecraft** | `server.properties` editing, EULA, console helpers; version changer and HungerBridge through [extensions](docs/learning/first_party_extensions.md) |
+| **Extensions** | Add methods, properties and services to CalagoAPI from separate packages: `enable('version_changer')` ([guide](docs/learning/extensions.md)) |
 | **Account** | Profile, password, email, two-factor, API keys, SSH keys, passkeys, sessions, OAuth links, command snippets, activity |
 | **Admin** | Users, servers (create, deploy, transfer, suspend, limits), nodes, allocations, locations, nests and eggs, egg repositories, mounts, devices, roles, announcements, OAuth providers, database hosts, backup configurations and policies, settings, email templates, extensions, system health and updates |
 | **Async** | `AsyncPanel`: the whole API with `await`, plus a native asyncio live console |
@@ -165,10 +166,29 @@ server = panel.servers.getMinecraftServer('abc123')
 
 server.say('Server update in 5 minutes!')
 server.setProperties({'max-players': 100, 'motd': 'Welcome!'})
-
-latest = server.getBuilds('PAPER', '1.21.1', page=1, per_page=1)[0]
-server.installVersion(latest)
 ```
+
+### Extensions
+
+Optional features ship as separate packages and are switched on with `enable()`:
+
+```bash
+pip install calagoapi-version-changer calagoapi-hungerbridge
+```
+
+```python
+from calagoapi.extensions import enable
+
+enable('version_changer')
+latest = server.getBuilds('PAPER', '1.21.11', page=1, per_page=1)[0]
+server.installVersion(latest)
+print(server.installedVersion)
+
+enable('hungerbridge', config={'token': 'bot:9f2c...'})
+print(server.hungerbridge.players())
+```
+
+Write your own: [docs/learning/creating_extensions.md](docs/learning/creating_extensions.md).
 
 ### Administration
 

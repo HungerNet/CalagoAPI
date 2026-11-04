@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calagoapi-hungerbridge"
+version = "0.0.0"
+description = "CalagoAPI extension for HungerBridge: run commands and read players, TPS and server metrics through the HungerBridge mod."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "GPL-3.0" }
+
+authors = [
+    { name = "iFamished" }
+]
+
+keywords = ["calagopus", "calagoapi", "minecraft", "hungerbridge", "hungernet", "extension"]
+
+dependencies = [
+    "calagoapi>=1.0.dev2",
+    "calagoapi-version-changer>=1.0.0",
+    "requests",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Games/Entertainment",
+]
+
+[project.urls]
+Homepage = "https://github.com/HungerNet/CalagoAPI"
+Documentation = "https://github.com/HungerNet/CalagoAPI/tree/main/docs/learning/first_party_extensions.md"
+Source = "https://github.com/HungerNet/CalagoAPI/tree/main/src/extensions/calagoapi-hungerbridge"
+HungerBridge = "https://github.com/hungernet/hungerbridge"
+
+# how CalagoAPI finds the extension: enable('hungerbridge')
+[project.entry-points."calagoapi"]
+hungerbridge = "calagoapi_hungerbridge.extension:HungerBridgeExtension"
+
+[tool.setuptools]
+packages = ["calagoapi_hungerbridge"]

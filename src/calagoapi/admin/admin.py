@@ -17,6 +17,7 @@ from calagoapi.admin.managers import (
     EggConfigurationManager,
     SubdomainDomainManager,
 )
+from calagoapi.extensions.compat import migrated_to
 from calagoapi.nodes import NodeManager
 from calagoapi.servers.admin import AdminServerManager
 from calagoapi.users import UserManager, Activity
@@ -147,6 +148,9 @@ class ExtensionManager:
     '''
     Panel extensions, available as `panel.admin.extensions`.
 
+    These are Calagopus panel extensions installed on the panel itself. They are
+    not CalagoAPI SDK extensions (see `calagoapi.extensions`).
+
     Example:
         for extension in panel.admin.extensions.getExtensions():
             print(extension['identifier'])
@@ -218,20 +222,25 @@ class ExtensionManager:
         return self.api.manageExtensions('restart', 'POST')
 
     # Minecraft Version Changer
+    # Deprecated: moved to the calagoapi-version-changer extension, see servers/minecraft.py
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def getVersionChangerSettings(self) -> dict:
-        '''Returns the Minecraft Version Changer settings.'''
+        '''Deprecated, use the calagoapi-version-changer extension. Returns the Version Changer settings.'''
         return self.api.extension(self.VERSION_CHANGER, 'settings')['settings']
 
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def updateVersionChangerSettings(self, **settings) -> None:
-        '''Changes Minecraft Version Changer settings (mcjars_url, mcjars_api_key, type_egg_assignments, ...).'''
+        '''Deprecated, use the calagoapi-version-changer extension. Changes Version Changer settings.'''
         return self.api.extension(self.VERSION_CHANGER, 'settings', 'PUT', json=settings)
 
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def getVersionChangerStatistics(self) -> dict:
-        '''Returns install statistics by server type and version.'''
+        '''Deprecated, use the calagoapi-version-changer extension. Returns install statistics.'''
         return self.api.extension(self.VERSION_CHANGER, 'statistics/total')
 
+    @migrated_to('version_changer', 'calagoapi-version-changer')
     def getVersionChangerDefaultOrder(self) -> list:
-        '''Returns the default order of server types in the version picker.'''
+        '''Deprecated, use the calagoapi-version-changer extension. Returns the default server type order.'''
         return self.api.extension(self.VERSION_CHANGER, 'default-order')['mcjars_type_order']
 
 

@@ -11,11 +11,13 @@ Outcomes, decisions and open items from building CalagoAPI (October 2026).
 | Async API (`AsyncPanel`) | Done |
 | Retries / `with` blocks | Done |
 | Docs | Done: README + 15 guides in `docs/`, docstrings on all 1,250 public classes and methods |
-| Offline test suite | Done: 38 tests, `pytest` |
+| Extension system | Done (November 2026): `calagoapi.extensions`, design in `PLAN.md`, guides in `docs/learning/`, examples in `examples/extensions/` |
+| First-party extensions | `calagoapi-version-changer`, `calagoapi-hungerbridge` in `src/extensions/` (independent PyPI packages) |
+| Offline test suite | Done: 122 tests (core, extension system, first-party extensions, examples), `pytest`, Python 3.9 and 3.14 |
 | Licence metadata | Fixed: GPL-3.0, matches `LICENSE` |
 | Tested against a real panel | **Not yet** |
 | Git | **Not committed**, index was already in an odd state (see below) |
-| Release safety | **`version.yaml` has `run: true`**, so a push to `main` publishes to PyPI |
+| Release safety | **`version.yaml` has `run: true`** (now `1.0-dev.2`), and so do both extension `version.yaml` files, so a push to `main` publishes all three packages to PyPI once tests pass |
 
 ## Goal and constraints
 
@@ -54,7 +56,9 @@ Key conventions:
 | `Panel` signature | `Panel(url, api_key, name=None, timeout=10, verify=True, max_retries=3)` | `name` made optional |
 | Return values | objects, dicts or `None`; errors raise typed exceptions | instead of HungerLib's raw responses / `(status, text)` |
 | `getStatus()` | power state (`running`, `offline`, ...), same as HungerLib | `getInstallStatus()` covers install state |
-| HungerBridge | not ported | console streaming now comes from the Calagopus daemon |
+| HungerBridge | not in core; `calagoapi-hungerbridge` extension (Nov 2026) | console streaming comes from the Calagopus daemon; the extension covers the mod's own API (commands, players, TPS, ...) |
+| Version changer | moved to `calagoapi-version-changer` (Nov 2026) | depends on an optional panel extension; core keeps deprecated `@migrated_to` shims |
+| Extension system | class patching, entry point group `calagoapi`, explicit `enable()` | see `PLAN.md` for the full design and alternatives |
 | Licence | **GPL-3.0** (chosen by the user) | the `LICENSE` file is the legal text |
 | Async design | wrapper running the sync client in worker threads; native asyncio only for the console | one source of truth; new methods are async automatically |
 | Retries | 429 on any method; connection errors and 502/503/504 on GET only | writes (power actions, backups) are never sent twice |
@@ -107,14 +111,20 @@ After a Calagopus update: replace `openapi.json`, run `pytest`, add whatever it 
 ## Spec quirks found
 
 - Dangling `$ref`s in `openapi.json` (e.g. `ServerStatus`, `ApiEggConfiguration`).
-- Some generated endpoint modules end in `_test.py`; pytest is limited to `tests/` (`[tool.pytest.ini_options]`).
+- Some generated endpoint modules end in `_test.py`; pytest is limited to `tests/` and `src/extensions/` (`[tool.pytest.ini_options]`).
 
 ## Open items
 
 1. **Prevent an accidental release**: set `run: false` in `version.yaml` until a live test passes.
 2. **Live smoke test** against a real panel (read-only by default) to confirm the assumptions above.
 3. **Git**: the CalagoAPI index had every file staged as deleted before work started. Suggested fix: `git reset`, then commit the new layout on a branch.
-4. **CI**: run `pytest` on every push and pull request, and make the release job depend on it.
+4. ~~**CI**: run `pytest` on every push and pull request, and make the release job depend on it.~~
+   Done: `.github/workflows/tests.yml`, called by `release.yml` before publishing.
+5. **PyPI trusted publishing** for `calagoapi-version-changer` and `calagoapi-hungerbridge`
+   (repository `HungerNet/CalagoAPI`, workflow `release.yml`) before their first release.
+6. **HungerBridge assumptions to confirm**: release jar names contain `<loader>-<mc version>`
+   (used by `install()`), and the bridge listens on the server's address (default URL).
+7. **Subdomain Manager** is the next candidate for an extension (`calagoapi-subdomains`).
 
 ## Dependencies
 

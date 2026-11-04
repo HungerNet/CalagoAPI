@@ -64,4 +64,5 @@ where = ["src"]
 include = ["calagoapi*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+# core tests, then the first-party extension packages (src/extensions/*/tests)
+testpaths = ["tests", "src/extensions"]

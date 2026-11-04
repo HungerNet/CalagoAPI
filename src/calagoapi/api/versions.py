@@ -2,6 +2,9 @@ from calagoapi.api.client import segment
 
 
 # Internal Calagopus VersionsAPI (Minecraft Version Changer extension)
+# Deprecated: kept for the built-in MinecraftServer version changer shims. The
+# calagoapi-version-changer package ships its own copy (VersionChangerAPI); this
+# module will be removed together with the shims in a future major release.
 class VersionsAPI:
     def __init__(self, client):
         self.client = client

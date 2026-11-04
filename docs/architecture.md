@@ -17,7 +17,7 @@ calagoapi/
 │   ├── network.py    NetworkAPI       allocations, subdomains, tunnel, firewall
 │   ├── users.py      UsersAPI         subusers
 │   ├── attachments.py AttachmentsAPI  server mounts and devices
-│   ├── versions.py   VersionsAPI      Minecraft version changer
+│   ├── versions.py   VersionsAPI      deprecated, used by the version changer shims
 │   ├── account.py    AccountAPI       /api/client/account/...
 │   ├── auth.py       AuthAPI          /api/auth/...
 │   ├── public.py     PublicAPI        /api/settings, /api/languages, ...
@@ -32,6 +32,7 @@ calagoapi/
 ├── tunnels/          TunnelManager
 ├── console/          Console, ConsoleEvent: live console over the daemon websocket
 ├── aio/              AsyncPanel, AsyncServer, AsyncWrapper, AsyncConsole
+├── extensions/       extension system: registry, decorators, discovery, exceptions
 ├── nodes/            Node, NodeManager
 ├── account/          Account, Auth, ApiKey, SshKey, ...
 ├── admin/            Admin namespace, admin resources and managers
@@ -59,6 +60,32 @@ Rules:
   wraps what it returns. New sync methods are therefore async automatically.
   Only the console has a native asyncio implementation (`AsyncConsole`),
   because streaming must not hold a thread per server.
+
+## Extension system
+
+`calagoapi/extensions/` lets separate packages add methods, properties and
+services to CalagoAPI classes (design: `PLAN.md`, guides: `docs/learning/`).
+
+```
+extensions/
+├── __init__.py    public API: enable(), register(), get_extension(), registry, ...
+├── base.py        Extension, ExtensionMetadata, Alias, Dependency, class validation
+├── members.py     @method, @property_extension, @class_extension; service and namespace descriptors
+├── registry.py    ExtensionRegistry: discovery, enablement, dependencies, conflicts, ownership
+├── discovery.py   "calagoapi" entry points, first-party package hints
+├── compat.py      @migrated_to: hand a built-in method over to an extension
+└── exceptions.py
+```
+
+- Decorators only label functions/classes. `enable()` patches **classes**
+  (never instances), after checking every name for conflicts, and records a
+  `Registration` (owner, target, name, kind) per installed attribute.
+- `AsyncWrapper` awaits `async def` members directly and wraps (and caches)
+  extension services and namespaces, so they work on `AsyncPanel` too.
+- First-party extensions are separate packages in `src/extensions/`, built only
+  on the public API, with their own `pyproject.toml`, `version.yaml` and tests.
+- Moving a built-in feature to an extension: `@migrated_to`, see
+  `docs/learning/migrating_builtin_features.md`.
 
 ## The generated client
 
@@ -96,6 +123,11 @@ The suite in `tests/` runs offline against `openapi.json`:
   renewal, logs, commands, stats, reconnects).
 - `test_resilience.py` covers retries, `with` blocks and `AsyncPanel`.
 - `test_units.py` covers helpers.
+- `test_extensions.py` covers the extension system (fresh registry and
+  throwaway classes per test, plus real entry points from a temporary
+  `*.dist-info`), `test_examples.py` runs every script in `examples/extensions/`.
+- `src/extensions/*/tests/` test the first-party extensions (shared fixtures in
+  `src/extensions/conftest.py`); `pytest` from the root runs them too.
 
 After a Calagopus update: replace `openapi.json`, run `pytest`, then fix
 whatever it lists.

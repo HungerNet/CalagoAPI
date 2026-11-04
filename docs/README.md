@@ -16,6 +16,23 @@
 14. [Migrating from HungerLib](migrating-from-hungerlib.md)
 15. [Architecture](architecture.md): for contributors, including the test suite
 
+## Extensions
+
+Learning guides in [learning/](learning/extensions.md):
+
+1. [Extensions](learning/extensions.md): installing, enabling, modes, configuration
+2. [Creating extensions](learning/creating_extensions.md)
+3. [Method extensions](learning/method_extensions.md)
+4. [Property extensions](learning/property_extensions.md)
+5. [Class (service) extensions](learning/class_extensions.md)
+6. [Discovery](learning/discovery.md): entry points
+7. [Dependencies](learning/dependencies.md)
+8. [Aliases](learning/aliases.md)
+9. [First-party extensions](learning/first_party_extensions.md): `version_changer`, `hungerbridge`
+10. [Migrating built-in features](learning/migrating_builtin_features.md)
+
+Runnable examples: [examples/extensions/](../examples/extensions/README.md).
+
 Every class and method also has a docstring, so `help()` works in a Python shell:
 
 ```python

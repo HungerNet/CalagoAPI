@@ -1,0 +1,25 @@
+# A complete, installable CalagoAPI extension. Copy this folder to start your own.
+#
+#   pip install -e examples/extensions/packaged_extension
+#   python -c "from calagoapi.extensions import enable; enable('server_notes')"
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# Convention: calagoapi-<name> on PyPI, calagoapi_<name> as the Python package.
+name = "calagoapi-server-notes"
+version = "1.0.0"
+description = "Example CalagoAPI extension: keep notes on servers."
+requires-python = ">=3.9"
+# Depend on calagoapi itself; CalagoAPI never installs extensions on its own.
+dependencies = ["calagoapi>=1.0.dev2"]
+
+# This is the whole discovery mechanism:
+#   group "calagoapi", name = the extension id, value = "module:ExtensionClass"
+[project.entry-points."calagoapi"]
+server_notes = "calagoapi_server_notes.extension:ServerNotesExtension"
+
+[tool.setuptools]
+packages = ["calagoapi_server_notes"]

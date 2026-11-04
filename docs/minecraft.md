@@ -49,10 +49,20 @@ server.isEulaAccepted()
 ## Version changer
 
 Calagopus ships the Minecraft Version Changer extension, which can install
-any server build (Paper, Purpur, Fabric, Forge, Vanilla, ...).
+any server build (Paper, Purpur, Fabric, Forge, Vanilla, ...). In CalagoAPI it
+is provided by the `calagoapi-version-changer` extension package:
+
+```bash
+pip install calagoapi-version-changer
+```
 
 ```python
-server.getInstalledVersion()                 # current type/version/build, or None
+from calagoapi.extensions import enable
+enable('version_changer')                    # once, at startup
+
+server.getInstalledVersion()                 # {'build': ..., 'latest': ...}, or None
+server.installedVersion                      # the installed build, or None
+server.isUpToDate()                          # True / False / None
 server.getVersionTypes()                     # available types
 
 versions = server.getVersions('PAPER', page=1, per_page=10)
@@ -66,10 +76,33 @@ Admins can configure the extension with
 `panel.admin.extensions.getVersionChangerSettings()` and
 `updateVersionChangerSettings(...)`.
 
+Without `enable('version_changer')` these methods still exist (they used to be
+built in) but emit an `ExtensionDeprecationWarning` and will be removed in a
+future major release. See [First-party extensions](learning/first_party_extensions.md)
+for every method and option (such as `auto_backup`).
+
+## HungerBridge
+
+The `calagoapi-hungerbridge` extension talks to the
+[HungerBridge](https://github.com/hungernet/hungerbridge) mod inside the server:
+commands without RCON, players, TPS, memory, and installing the mod itself.
+
+```python
+enable('hungerbridge', config={'token': 'bot:9f2c...'})
+
+server.hungerbridge.players()          # ['Steve', 'Alex']
+server.hungerbridge.tps()              # {'tps': 20.0, ...}
+server.hungerbridge.run('list')        # console output lines
+server.hungerbridge.install()          # downloads the right jar into plugins/ or mods/
+```
+
 ## Example: safe update
 
 ```python
 import time
+from calagoapi.extensions import enable
+
+enable('version_changer')
 
 server.say('Updating in 1 minute')
 time.sleep(60)
