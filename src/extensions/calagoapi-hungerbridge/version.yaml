@@ -1,7 +1,7 @@
 run: true
-version: '1.0.0'
+version: '1.0-dev.1'
 description: |
-  1.0.0:
+  1.0-dev.1:
   - First release: server.hungerbridge for the HungerBridge mod/plugin (HMAC-signed API v3)
   - players(), playerCount(), run(), log(), stop(), status(), info(), tps(), mspt(), chunks(), entities(),
     memory(), cpu(), gc(), threads(), network(), disk(), uptime(), ping(), authCheck()
