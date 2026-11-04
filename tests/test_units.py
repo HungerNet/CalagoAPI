@@ -3,6 +3,7 @@ import pytest
 
 from calagoapi import Page, convert, formatBytes, formatDuration, triggers, actions, variable
 from calagoapi.api.client import clean, segment
+from calagoapi.api.files import FilesAPI
 from calagoapi.files import splitPath, joinPath
 from calagoapi.utils.model import Model, idOf
 
@@ -26,6 +27,29 @@ def test_clean_drops_none():
 
 def test_segment_encodes_slashes():
     assert segment('logs/wings.log') == 'logs%2Fwings.log'
+
+
+def test_file_list_uses_api_page_limit():
+    class Client:
+        def __init__(self):
+            self.calls = []
+
+        def get(self, path, params):
+            self.calls.append(params.copy())
+            start = (params['page'] - 1) * params['per_page']
+            data = list(range(start, min(start + params['per_page'], 101)))
+            return {'entries': {
+                'data': data,
+                'total': 101,
+                'page': params['page'],
+                'per_page': params['per_page'],
+            }}
+
+    client = Client()
+    _, entries = FilesAPI(client).list('server-id')
+
+    assert len(entries) == 101
+    assert [call['per_page'] for call in client.calls] == [100, 100]
 
 
 def test_paths():
