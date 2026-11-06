@@ -1,5 +1,5 @@
-run: false
-version: '1.0-dev.6'
+run: true
+version: '1.0-dev.5'
 description: |
   Dev 1:
   - Initial release
@@ -14,8 +14,3 @@ description: |
   Dev 5:
   - Overhaul documentation
   - Add tutorials
-  Dev 6:
-  - Update file structure
-  - Add new documentation
-  - Update extension system
-  - Update extensions

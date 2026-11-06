@@ -24,7 +24,7 @@ class FilesAPI:
         items = []
         current = 1
         while True:
-            params.update(page=current, per_page=per_page or 500)
+            params.update(page=current, per_page=per_page or 100)
             result = self.client.get(self._path(server_id, 'list'), params=params)
             entries = result['entries']
             items.extend(entries['data'])
