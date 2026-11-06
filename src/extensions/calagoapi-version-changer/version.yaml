@@ -1,7 +1,7 @@
-run: false
-version: '1.0-dev.1'
+run: true
+version: '1.0.0'
 description: |
-  1.0-dev.1:
+  1.0.0:
   - First release as an independent CalagoAPI extension (previously built into calagoapi)
   - enable('version_changer') adds getInstalledVersion(), getVersionTypes(), getVersions(), getBuilds(),
     installVersion(), updateVersion(), isUpToDate() and the installedVersion property to MinecraftServer

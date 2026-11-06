@@ -26,4 +26,4 @@ Each numbered script is a single file, so it uses `register()`. Published
 extensions use an entry point instead (see `packaged_extension/pyproject.toml`),
 so their users only write `enable('...')`.
 
-The guides are in [docs/extensions/](../../docs/extensions/01_Extensions_Overview.md).
+The guides are in [docs/learning/](../../docs/learning/extensions.md).

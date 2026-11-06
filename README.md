@@ -49,8 +49,8 @@ CalagoAPI needs Python 3.9+ and depends on `requests` and `websockets`.
 | **Schedules** | Triggers (cron, crash, console line, resource usage, ...), conditions, 30+ step actions, import/export, live status, with builder helpers |
 | **Network** | Allocations, subdomains, per-server firewall, tunnels between servers |
 | **Subusers** | Invite, permissions, ignored files |
-| **Minecraft** | `server.properties` editing, EULA, console helpers; version changer and HungerBridge through [extensions](docs/extensions/06_First_Party_Extensions.md) |
-| **Extensions** | Add methods, properties and services to CalagoAPI from separate packages: `enable('version_changer')` ([guide](docs/extensions/01_Extensions_Overview.md)) |
+| **Minecraft** | `server.properties` editing, EULA, console helpers; version changer and HungerBridge through [extensions](docs/learning/first_party_extensions.md) |
+| **Extensions** | Add methods, properties and services to CalagoAPI from separate packages: `enable('version_changer')` ([guide](docs/learning/extensions.md)) |
 | **Account** | Profile, password, email, two-factor, API keys, SSH keys, passkeys, sessions, OAuth links, command snippets, activity |
 | **Admin** | Users, servers (create, deploy, transfer, suspend, limits), nodes, allocations, locations, nests and eggs, egg repositories, mounts, devices, roles, announcements, OAuth providers, database hosts, backup configurations and policies, settings, email templates, extensions, system health and updates |
 | **Async** | `AsyncPanel`: the whole API with `await`, plus a native asyncio live console |
@@ -188,7 +188,7 @@ enable('hungerbridge', config={'token': 'bot:9f2c...'})
 print(server.hungerbridge.players())
 ```
 
-Write your own: [docs/extensions/04_Creating_Extensions.md](docs/extensions/04_Creating_Extensions.md).
+Write your own: [docs/learning/creating_extensions.md](docs/learning/creating_extensions.md).
 
 ### Administration
 
@@ -220,11 +220,19 @@ except CalagoAPIError as e:
 
 ## Documentation
 
-Start with the [sequential tutorial track](docs/tutorials/00_Introduction.md) if
-you are new to CalagoAPI. Use the [API reference](docs/reference/README.md) to
-look up classes, methods, arguments, and behavior. Contributors can start at
-[architecture](docs/architecture/Architecture.md); extension authors can start
-at the [extension overview](docs/extensions/01_Extensions_Overview.md).
+The [docs](docs/) folder has a guide for every area:
+
+- [Getting started](docs/getting-started.md)
+- [Servers](docs/servers.md), [Minecraft servers](docs/minecraft.md), [Live console](docs/console.md)
+- [Files](docs/files.md), [Backups](docs/backups.md), [Databases](docs/databases.md)
+- [Schedules](docs/schedules.md)
+- [Network, subusers and tunnels](docs/network.md)
+- [Account and authentication](docs/account.md)
+- [Administration](docs/admin.md)
+- [Async](docs/async.md)
+- [Errors, pagination and utilities](docs/errors-and-utilities.md)
+- [Migrating from HungerLib](docs/migrating-from-hungerlib.md)
+- [Architecture](docs/architecture.md)
 
 Every public class and method also has a docstring with parameters and an
 example, so `help(server.files)` works from a Python shell.
@@ -237,7 +245,7 @@ pytest
 ```
 
 The tests run offline against `openapi.json` and a fake daemon. See
-[Architecture](docs/architecture/Architecture.md#tests).
+[Architecture](docs/architecture.md#tests).
 
 ## License
 

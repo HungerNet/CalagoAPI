@@ -14,3 +14,8 @@ description: |
   Dev 5:
   - Overhaul documentation
   - Add tutorials
+  Dev 6:
+  - Update file structure
+  - Add new documentation
+  - Update extension system
+  - Update extensions

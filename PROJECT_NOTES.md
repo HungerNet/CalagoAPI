@@ -10,8 +10,8 @@ Outcomes, decisions and open items from building CalagoAPI (October 2026).
 | Live console (websocket) | Done: sync and async |
 | Async API (`AsyncPanel`) | Done |
 | Retries / `with` blocks | Done |
-| Docs | Structured reference, sequential tutorials, extension guides, and contributor architecture docs; docstrings on all 1,250 public classes and methods |
-| Extension system | Done (November 2026): `calagoapi.extensions`, design in `PLAN.md`, guides in `docs/extensions/`, examples in `examples/extensions/` |
+| Docs | Done: README + 15 guides in `docs/`, docstrings on all 1,250 public classes and methods |
+| Extension system | Done (November 2026): `calagoapi.extensions`, design in `PLAN.md`, guides in `docs/learning/`, examples in `examples/extensions/` |
 | First-party extensions | `calagoapi-version-changer`, `calagoapi-hungerbridge` in `src/extensions/` (independent PyPI packages) |
 | Offline test suite | Done: 122 tests (core, extension system, first-party extensions, examples), `pytest`, Python 3.9 and 3.14 |
 | Licence metadata | Fixed: GPL-3.0, matches `LICENSE` |
@@ -136,8 +136,8 @@ After a Calagopus update: replace `openapi.json`, run `pytest`, add whatever it 
 
 | What | Where |
 | --- | --- |
-| User docs | `README.md`, `docs/reference/`, `docs/tutorials/`, `docs/extensions/` |
-| Contributor docs | `docs/architecture/Architecture.md` |
+| User docs | `README.md`, `docs/` |
+| Contributor docs | `docs/architecture.md` |
 | Changelog | `version.yaml` (Dev 1, Dev 2) |
 | Tests | `tests/` |
 | API reference material | `api_generated/`, `openapi.json` |

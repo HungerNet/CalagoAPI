@@ -398,7 +398,7 @@ New:
 - `src/calagoapi/extensions/{__init__,base,members,registry,discovery,exceptions,compat}.py`
 - `src/extensions/calagoapi-version-changer/**`, `src/extensions/calagoapi-hungerbridge/**`
 - `tests/test_extensions.py`, `tests/test_examples.py`
-- `docs/extensions/*.md` (extension guides), `examples/extensions/*.py` (+ README)
+- `docs/learning/*.md` (10 guides), `examples/extensions/*.py` (+ README)
 - `.github/workflows/tests.yml`
 
 Changed:
@@ -407,8 +407,8 @@ Changed:
 - `api/versions.py`: marked deprecated (kept)
 - `.github/workflows/release.yml`: multi-package matrix, tests gate, tag guard
 - `pyproject.toml` (pytest paths), `version.yaml` (Dev 2 changelog), `README.md`,
-  `docs/README.md`, `docs/reference/minecraft.md`, `docs/architecture/Architecture.md`,
-  `docs/reference/migrating-from-hungerlib.md`, `PROJECT_NOTES.md`
+  `docs/README.md`, `docs/minecraft.md`, `docs/architecture.md`,
+  `docs/migrating-from-hungerlib.md`, `PROJECT_NOTES.md`
 - `.gitignore` (new): build artifacts from editable installs of the extension packages
 
 ## 20. Alternatives considered
