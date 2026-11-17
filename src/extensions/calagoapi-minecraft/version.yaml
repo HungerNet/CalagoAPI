@@ -1,5 +1,5 @@
 run: true
-version: '1.0-dev.1'
+version: '1.0-dev.2'
 description: |
   Dev 1:
   - First release. Replaces calagoapi-hungerbridge and calagoapi-version-changer (CalagoAPI 1.x).
@@ -12,3 +12,5 @@ description: |
   - createBridgeToken(), installBridge(), waitForBridge()
   - server.versions (Version Changer) and panel.minecraft.versionChanger (admin)
   - panel.minecraft after enable('minecraft'); AsyncPanel support
+  Dev 2:
+  - Bump version
