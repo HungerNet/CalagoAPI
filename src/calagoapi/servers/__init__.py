@@ -1,11 +1,9 @@
-from .generic import GenericServer
-from .minecraft import MinecraftServer
+from .server import Server
 from .manager import ServerManager, ServerGroup
 from .admin import AdminServer, AdminServerManager
 
 __all__ = [
-    'GenericServer',
-    'MinecraftServer',
+    'Server',
     'ServerManager',
     'ServerGroup',
     'AdminServer',

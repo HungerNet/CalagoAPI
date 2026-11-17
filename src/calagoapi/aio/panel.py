@@ -5,9 +5,66 @@ import inspect
 from calagoapi.panel import Panel
 from calagoapi.console import Console
 from calagoapi.extensions.members import isExtensionObject
-from calagoapi.servers.generic import GenericServer
+from calagoapi.servers.server import Server
 from calagoapi.utils.model import Page
 from calagoapi.aio.console import AsyncConsole
+
+
+# class -> async wrapper class, see registerAsyncType()
+_async_types = {}
+
+
+def registerAsyncType(cls: type, wrapper: type = None) -> None:
+    '''
+    Tells AsyncPanel how to wrap instances of a class returned by any call.
+
+    The most specific registered class in the object's MRO wins, so registering a
+    subclass overrides the wrapper of its base class. Extension packages register
+    the types they return (servers, managers, clients) so they become awaitable.
+
+    Args:
+        cls: The sync class.
+        wrapper: An AsyncWrapper subclass taking the object as its only argument.
+            Defaults to AsyncWrapper (every method becomes a coroutine).
+
+    Example:
+        registerAsyncType(MyGameServer, AsyncMyGameServer)
+        registerAsyncType(MyGameStats)            # plain AsyncWrapper
+    '''
+    _async_types[cls] = wrapper or AsyncWrapper
+
+
+def asyncTypeFor(cls: type):
+    '''Returns the async wrapper registered for a class (through its MRO), or None.'''
+    for base in cls.__mro__:
+        if base in _async_types:
+            return _async_types[base]
+    return None
+
+
+async def iterateInThread(iterable):
+    '''
+    Iterates a blocking iterator in a worker thread, as an async generator.
+
+    Each item is fetched with asyncio.to_thread(), so the event loop never blocks.
+    Closing the async generator closes the underlying iterator.
+
+    Example:
+        async for line in iterateInThread(server.streamConsole()):
+            print(line)
+    '''
+    iterator = iter(iterable)
+    finished = object()
+    try:
+        while True:
+            item = await asyncio.to_thread(next, iterator, finished)
+            if item is finished:
+                return
+            yield wrap(item)
+    finally:
+        close = getattr(iterator, 'close', None)
+        if close is not None:
+            await asyncio.to_thread(close)
 
 
 def wrap(value):
@@ -16,13 +73,16 @@ def wrap(value):
         return value.map(wrap)
     if isinstance(value, list):
         return [wrap(v) for v in value]
-    if isinstance(value, GenericServer):
-        return AsyncServer(value)
+    if isinstance(value, AsyncWrapper) or isinstance(value, BaseException):
+        return value
+    wrapper = asyncTypeFor(type(value))
+    if wrapper is not None:
+        return wrapper(value)
     if isinstance(value, Console):
         return AsyncConsole(value.server)
     if isExtensionObject(value):
         return AsyncWrapper(value)
-    if type(value).__module__.startswith('calagoapi.') and not isinstance(value, BaseException):
+    if type(value).__module__.startswith('calagoapi.'):
         return AsyncWrapper(value)
     return value
 
@@ -46,8 +106,9 @@ class AsyncWrapper:
 
     Every method of the wrapped object becomes a coroutine with the same name,
     arguments and docstring. Calls run in a worker thread, so many can run at
-    once with asyncio.gather(). Plain attributes (like `server.name`) are read
-    directly. Objects returned by a method are wrapped as well.
+    once with asyncio.gather(). Generator methods become async generators whose
+    items are fetched in a worker thread. Plain attributes (like `server.name`)
+    are read directly. Objects returned by a method are wrapped as well.
 
     Example:
         backups = await server.backups.getBackups()
@@ -76,6 +137,16 @@ class AsyncWrapper:
                 return wrap(await value(*args, **kwargs))
 
             return coroutine
+
+        if inspect.isgeneratorfunction(value):
+            # blocking generators (e.g. console streams) are pulled item by item in a thread
+            @functools.wraps(value)
+            def generator(*args, **kwargs):
+                args = [unwrap(a) for a in args]
+                kwargs = {k: unwrap(v) for k, v in kwargs.items()}
+                return iterateInThread(value(*args, **kwargs))
+
+            return generator
 
         @functools.wraps(value)
         async def method(*args, **kwargs):
@@ -112,9 +183,12 @@ class AsyncWrapper:
 
 class AsyncServer(AsyncWrapper):
     '''
-    The async version of GenericServer / MinecraftServer.
+    The async version of Server.
 
     Every server method is awaitable, and `server.console` is an AsyncConsole.
+    streamConsole() and onConsoleLine() use a native asyncio websocket. Server
+    subclasses that stream differently register their own wrapper with
+    registerAsyncType().
 
     Example:
         server = await panel.servers.getServer('abc123')
@@ -171,7 +245,7 @@ class AsyncPanel(AsyncWrapper):
                 servers = await panel.servers.getServers()
                 statuses = await asyncio.gather(*(server.getStatus() for server in servers))
                 for server, status in zip(servers, statuses):
-                    print(server.name, status)
+                    print(f'{server.name}: {status}')
 
         asyncio.run(main())
     '''
@@ -191,3 +265,6 @@ class AsyncPanel(AsyncWrapper):
             if inspect.iscoroutinefunction(console.close):
                 await console.close()
         await asyncio.to_thread(self.target.close)
+
+
+registerAsyncType(Server, AsyncServer)

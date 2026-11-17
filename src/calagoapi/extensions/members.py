@@ -37,7 +37,7 @@ class MemberSpec:
 
     @property
     def source(self) -> str:
-        '''Where the member was defined, e.g. "calagoapi_version_changer.extension.installVersion".'''
+        '''Where the member was defined, e.g. "calagoapi_monitoring.extension.getMemoryPercent".'''
         value = self.value.fget if isinstance(self.value, property) else self.value
         module = getattr(value, '__module__', None) or '?'
         qualname = getattr(value, '__qualname__', None) or self.name
@@ -45,7 +45,7 @@ class MemberSpec:
 
 
 class ExtensionProperty(property):
-    '''A property declared with @property_extension (a property that can carry a MemberSpec).'''
+    '''A property declared with @propertyExtension (a property that can carry a MemberSpec).'''
 
 
 def _targets(target, decorator):
@@ -97,9 +97,10 @@ def method(target, name: str = None):
         name: Attribute name, defaults to the function name.
 
     Example:
-        @method(MinecraftServer)
-        def installVersion(self, build):
-            ...
+        @method(Server)
+        def getMemoryPercent(self):
+            limit = self.getRAMLimit()
+            return round(self.getRAM() / limit * 100, 1) if limit else None
     '''
     targets = _targets(target, 'method')
 
@@ -107,13 +108,13 @@ def method(target, name: str = None):
         if isinstance(func, (staticmethod, classmethod)):
             raise ExtensionDefinitionError('@method() cannot be used on staticmethod or classmethod objects')
         if not callable(func) or isinstance(func, type):
-            raise ExtensionDefinitionError(f'@method() decorates functions, got {func!r}. Use @class_extension() for classes.')
+            raise ExtensionDefinitionError(f'@method() decorates functions, got {func!r}. Use @classExtension() for classes.')
         return _attach(func, MemberSpec('method', targets, _checkName(name or func.__name__, 'method'), func))
 
     return decorator
 
 
-def property_extension(target, name: str = None):
+def propertyExtension(target, name: str = None):
     '''
     Declares a read-only property an extension adds to one or more CalagoAPI classes.
 
@@ -124,11 +125,11 @@ def property_extension(target, name: str = None):
         name: Attribute name, defaults to the function name.
 
     Example:
-        @property_extension(MinecraftServer)
-        def installedVersion(self):
-            return self.getInstalledVersion()
+        @propertyExtension(Server)
+        def memoryPercent(self):
+            return getMemoryPercent(self)
     '''
-    targets = _targets(target, 'property_extension')
+    targets = _targets(target, 'propertyExtension')
 
     def decorator(value):
         if isinstance(value, ExtensionProperty):
@@ -138,10 +139,10 @@ def property_extension(target, name: str = None):
         elif callable(value) and not isinstance(value, type):
             prop = None
         else:
-            raise ExtensionDefinitionError(f'@property_extension() decorates a getter function or a property, got {value!r}')
+            raise ExtensionDefinitionError(f'@propertyExtension() decorates a getter function or a property, got {value!r}')
 
         getter = prop.fget if prop is not None else value
-        member_name = _checkName(name or getattr(getter, '__name__', None), 'property_extension')
+        member_name = _checkName(name or getattr(getter, '__name__', None), 'propertyExtension')
         if prop is None:
             # keep the getter a plain function, the property is built when installed
             return _attach(value, MemberSpec('property', targets, member_name, value))
@@ -150,32 +151,32 @@ def property_extension(target, name: str = None):
     return decorator
 
 
-def class_extension(target, name: str = None):
+def classExtension(target, name: str = None):
     '''
     Declares a service: a class attached to CalagoAPI objects under a name.
 
     The service is created on first access as `ServiceClass(obj)` and cached on the
-    object, so `server.hungerbridge is server.hungerbridge`.
+    object, so `server.notes is server.notes`.
 
     Args:
         target: The class (or a list of classes) to extend.
         name: Attribute name, defaults to the class name in lowercase.
 
     Example:
-        @class_extension(MinecraftServer, 'hungerbridge')
-        class HungerBridge:
+        @classExtension(Server, 'notes')
+        class Notes:
             def __init__(self, server):
                 self.server = server
 
-            def players(self):
+            def add(self, text):
                 ...
     '''
-    targets = _targets(target, 'class_extension')
+    targets = _targets(target, 'classExtension')
 
     def decorator(cls):
         if not isinstance(cls, type):
-            raise ExtensionDefinitionError(f'@class_extension() decorates classes, got {cls!r}')
-        member_name = _checkName(name or cls.__name__.lower(), 'class_extension')
+            raise ExtensionDefinitionError(f'@classExtension() decorates classes, got {cls!r}')
+        member_name = _checkName(name or cls.__name__.lower(), 'classExtension')
         return _attach(cls, MemberSpec('service', targets, member_name, cls))
 
     return decorator
@@ -248,8 +249,8 @@ class ExtensionNamespace:
     server (or whatever was extended), exactly as in direct mode.
 
     Example:
-        enable('version_changer', mode='namespace')
-        server.version_changer.installVersion(build)
+        enable('monitoring', mode='namespace')
+        server.monitoring.getMemoryPercent()
     '''
     def __init__(self, obj, name, owner, members):
         object.__setattr__(self, '_obj', obj)

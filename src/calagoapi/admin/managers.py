@@ -88,7 +88,7 @@ class NestManager(AdminManager):
         Finds an egg in any nest by UUID or name.
 
         Example:
-            paper = panel.admin.nests.findEgg('Paper')
+            egg = panel.admin.nests.findEgg('My Game')
         '''
         for entry in self.admin.allEggs():
             for egg in entry.get('eggs', []):

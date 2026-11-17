@@ -38,7 +38,7 @@ def waitForOnline(server, timeout: int = 60, interval: int = 2) -> bool:
     Example:
         server.restart()
         if waitForOnline(server, timeout=180):
-            server.sendCommand('say Back online!')
+            server.sendCommand('status')
     '''
     return waitForState(server, 'running', timeout, interval)
 

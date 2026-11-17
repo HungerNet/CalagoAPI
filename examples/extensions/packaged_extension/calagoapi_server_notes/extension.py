@@ -4,7 +4,7 @@ calagoapi-server-notes: an example of a packaged extension.
     from calagoapi.extensions import enable
 
     enable('server_notes', config={'path': 'notes.json'})
-    server.notes.add('Upgrade to 1.21.11 on Friday')
+    server.notes.add('Upgrade on Friday')
     print(server.notes.list())
     print(server.lastNote)
 '''
@@ -12,13 +12,13 @@ import json
 import os
 import threading
 
-from calagoapi import GenericServer
+from calagoapi import Server
 from calagoapi.extensions import (
     ConfigurationError,
     Extension,
     ExtensionMetadata,
-    class_extension,
-    property_extension,
+    classExtension,
+    propertyExtension,
 )
 
 _lock = threading.Lock()
@@ -31,7 +31,7 @@ def _load(path):
         return json.load(f)
 
 
-@class_extension(GenericServer, 'notes')
+@classExtension(Server, 'notes')
 class ServerNotes:
     '''Notes about one server, stored in a local JSON file. Available as `server.notes`.'''
     def __init__(self, server):
@@ -54,7 +54,7 @@ class ServerNotes:
         return _load(self._path).get(self.server.server_id, [])
 
 
-@property_extension(GenericServer)
+@propertyExtension(Server)
 def lastNote(self):
     '''The newest note, or None.'''
     # Use the service through the attribute here: services are never moved by the
@@ -75,7 +75,7 @@ class ServerNotesExtension(Extension):
     default_mode = 'direct'
     default_config = {'path': 'calagoapi-notes.json'}
 
-    def validate_config(self, config):
+    def validateConfig(self, config):
         if not str(config['path']).endswith('.json'):
             raise ConfigurationError('server_notes: path must be a .json file')
         return config

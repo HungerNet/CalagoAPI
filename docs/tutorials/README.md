@@ -1,46 +1,64 @@
-# Tutorial Track
+# CalagoAPI tutorials
 
-Read these tutorials in order. Each lesson introduces only concepts from
-earlier lessons, includes a practice exercise and full answer, and points to
-the relevant reference page. Exercises are not automatically graded.
+Fifteen tutorials in three tracks. Each one builds a small, complete program and then
+explains the part of the architecture that makes it work. Work through them in order:
+every tutorial uses what the previous ones introduced. The [reference guides](../README.md)
+list every method; the tutorials teach how the pieces fit together.
 
-## Start Here
+```
+Track 1: the core SDK           Track 2: extending CalagoAPI        Track 3: Minecraft
+(any game)                      (any game)                          (calagoapi-minecraft)
 
-00. [Introduction](00_Introduction.md)
-01. [Installation](01_Installation.md)
-02. [Creating a Panel](02_Creating_A_Panel.md)
-03. [Finding Servers](03_Finding_Servers.md)
-04. [Understanding Server Objects](04_Understanding_Server_Objects.md)
-05. [Reading Status and Resources](05_Reading_Status_And_Resources.md)
-06. [Power Actions](06_Power_Actions.md)
-07. [Sending Commands](07_Sending_Commands.md)
-08. [Using the Console](08_Using_The_Console.md)
-09. [Console Review](09_Console_Review.md)
+01 First script                 06 Using extensions                 11 Minecraft setup
+02 Server control       ──►     07 Your first extension     ──►     12 Commands and console
+03 Live console                 08 Services and namespaces          13 Monitoring
+04 Files and backups            09 Configuration and dependencies   14 Versions and installs
+05 Going async                  10 Packaging and publishing         15 Capstone: community bot
+```
 
-## Server Resources
+## Track 1: the core SDK
 
-10. [Working with Files](10_Working_With_Files.md)
-11. [Files Review](11_Files_Review.md)
-12. [Backups](12_Backups.md)
-13. [Backups Review](13_Backups_Review.md)
-14. [Databases](14_Databases.md)
-15. [Databases Review](15_Databases_Review.md)
-16. [Schedules](16_Schedules.md)
-17. [Schedules Review](17_Schedules_Review.md)
-18. [Networking](18_Networking.md)
-19. [Minecraft Servers](19_Minecraft_Servers.md)
-20. [AsyncPanel](20_AsyncPanel.md)
+Everything here works for every game the panel hosts.
 
-## Advanced Workflows
+| # | Tutorial | You build | You learn |
+| --- | --- | --- | --- |
+| 01 | [First script](basics/01-first-script.md) | a server status table | `Panel`, managers, objects, `Server` |
+| 02 | [Server control](basics/02-server-control.md) | a safe-restart script | power actions, waiting for states, the resource cache |
+| 03 | [Live console](basics/03-live-console.md) | a startup watcher and an error relay | the daemon websocket, `streamConsole()`, callbacks |
+| 04 | [Files and backups](basics/04-files-and-backups.md) | a "backup, then edit config" tool | managers, `File` objects, waiting for backups |
+| 05 | [Going async](basics/05-going-async.md) | a concurrent status checker | `AsyncPanel`, worker threads, the native async console |
 
-21. [Extensions](21_Extensions.md)
-22. [Admin API](22_Admin_API.md)
-23. [Project 1: Nightly Backup System](23_Project_1_Backup_System.md)
-24. [Project 2: Server Monitor](24_Project_2_Server_Monitor.md)
-25. [Project 3: Multi-Server Automation](25_Project_3_Multi_Server_Automation.md)
-26. [Final Review](26_Final_Review.md)
-27. [Where to Go Next](27_Where_To_Go_Next.md)
+## Track 2: extending CalagoAPI
 
-Runnable code examples are in [examples/tutorials](../../examples/tutorials/README.md).
-Use the [API reference](../reference/README.md) for quick method and parameter
-lookups while working through the course.
+How separately installed packages add features, and how to write one.
+
+| # | Tutorial | You build | You learn |
+| --- | --- | --- | --- |
+| 06 | [Using extensions](extensions/06-using-extensions.md) | a script that uses an installed extension | `enable()`, modes, config, introspection |
+| 07 | [Your first extension](extensions/07-your-first-extension.md) | a `monitoring` extension | `@method`, `@propertyExtension`, class patching, testing |
+| 08 | [Services and namespaces](extensions/08-services-and-namespaces.md) | a per-server `notes` service | `@classExtension`, caching, namespace mode, async |
+| 09 | [Configuration and dependencies](extensions/09-configuration-and-dependencies.md) | an `alerts` extension built on `monitoring` | `default_config`, `validateConfig`, `onEnable`, dependencies, aliases |
+| 10 | [Packaging and publishing](extensions/10-packaging-and-publishing.md) | a pip-installable package | entry points, discovery, conflicts, game-extension pattern |
+
+## Track 3: Minecraft
+
+Requires `pip install calagoapi-minecraft` and, for most of it, the
+[HungerBridge](https://github.com/HungerNet/HungerBridge) plugin/mod on the server.
+The code of these tutorials is in [examples/minecraft/](../../examples/minecraft/README.md)
+and is tested against a fake panel and a fake HungerBridge.
+
+| # | Tutorial | You build | You learn |
+| --- | --- | --- | --- |
+| 11 | [Minecraft setup](minecraft/11-minecraft-setup.md) | a connection check that creates its own bridge token | `MinecraftServer`, the two channels, HungerBridgePy |
+| 12 | [Commands and console](minecraft/12-commands-and-console.md) | a command runner and a join watcher | `sendCommand()` output, `streamConsole()`, `sendPanelCommand()` |
+| 13 | [Monitoring](minecraft/13-monitoring.md) | a health report | `getRAM()` vs `getMemoryInfo()`, TPS/MSPT, `getPerformance()` |
+| 14 | [Versions and installs](minecraft/14-versions-and-installs.md) | a safe upgrade script | `server.versions`, auto backup, `installBridge()`, `waitForBridge()` |
+| 15 | [Capstone: community bot](minecraft/15-community-bot.md) | an asyncio bot | every track together |
+
+## Conventions used in the tutorials
+
+- Code uses 4-space indentation, single quotes and f-strings, like CalagoAPI itself.
+- Replace `https://panel.example.com`, `c7sp_...` and `abc123` with your panel URL, API
+  key and a server id. Scripts that change things say so before they do.
+- Methods are camelCase (`getServer()`), attributes and parameters snake_case
+  (`server.server_id`, `per_page=`).

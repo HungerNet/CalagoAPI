@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calagoapi-minecraft"
+version = "0.0.0"  # injected from version.yaml by .github/workflows/release.yml
+description = "Minecraft servers for CalagoAPI: commands with output, console streaming, players and metrics through HungerBridge, the Version Changer, server.properties."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "GPL-3.0" }
+
+authors = [
+    { name = "iFamished" }
+]
+
+keywords = ["calagopus", "calagoapi", "minecraft", "hungerbridge", "paper", "fabric", "extension"]
+
+dependencies = [
+    "calagoapi>=2.0.dev1",
+    "hungerbridge>=1.0.dev2",
+    "requests",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Games/Entertainment",
+]
+
+[project.urls]
+Homepage = "https://github.com/HungerNet/CalagoAPI"
+Documentation = "https://github.com/HungerNet/CalagoAPI/tree/main/docs/tutorials/minecraft"
+Source = "https://github.com/HungerNet/CalagoAPI/tree/main/src/extensions/calagoapi-minecraft"
+HungerBridge = "https://github.com/HungerNet/HungerBridge"
+HungerBridgePy = "https://github.com/HungerNet/HungerBridgePy"
+
+# how CalagoAPI finds the extension: enable('minecraft')
+[project.entry-points."calagoapi"]
+minecraft = "calagoapi_minecraft.extension:MinecraftExtension"
+
+[tool.setuptools]
+packages = ["calagoapi_minecraft"]

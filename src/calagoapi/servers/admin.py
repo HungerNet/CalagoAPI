@@ -1,5 +1,5 @@
 from calagoapi.utils.resource import AdminResource, AdminManager
-from calagoapi.servers.generic import GenericServer
+from calagoapi.servers.server import Server
 from calagoapi.utils.model import idOf
 from calagoapi.utils.exceptions import NotFoundError
 
@@ -10,7 +10,7 @@ class AdminServer(AdminResource):
 
     Gives access to everything a server owner cannot change: limits, owner,
     egg, node, suspension, transfers, allocations and more. Use
-    `asServer()` to get the regular GenericServer for power, files, etc.
+    `asServer()` to get the regular Server for power, files, etc.
 
     Example:
         server = panel.admin.servers.getServer('abc123')
@@ -100,12 +100,12 @@ class AdminServer(AdminResource):
     # settings
     def asServer(self):
         '''
-        Returns the regular GenericServer for this server.
+        Returns the regular Server for this server.
 
         Example:
             panel.admin.servers.getServer(server_id).asServer().restart()
         '''
-        return GenericServer(self.panel, self.getUUID())
+        return Server(self.panel, self.getUUID())
 
     def suspend(self) -> 'AdminServer':
         '''Suspends the server.'''
@@ -299,7 +299,7 @@ class AdminServerManager(AdminManager):
         server = panel.admin.servers.createServer(
             name='Survival',
             owner=user,
-            egg=paper_egg,
+            egg=egg,
             node=node,
             allocation=allocation,
             memory=4096,

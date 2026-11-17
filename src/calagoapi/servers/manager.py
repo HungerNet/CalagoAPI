@@ -1,5 +1,4 @@
-from calagoapi.servers.generic import GenericServer
-from calagoapi.servers.minecraft import MinecraftServer
+from calagoapi.servers.server import Server
 from calagoapi.utils.model import Model, idOf
 
 
@@ -27,9 +26,9 @@ class ServerGroup(Model):
         return self.data.get('server_order', [])
 
     def getServers(self, search: str = None, page: int = None, per_page: int = None):
-        '''Returns the servers in the group as GenericServer objects.'''
+        '''Returns the servers in the group as Server objects.'''
         return self._api().groupServers(self.getUUID(), search, page, per_page).map(
-            lambda data: GenericServer(self.panel, data=data)
+            lambda data: Server(self.panel, data=data)
         )
 
     def rename(self, name: str) -> 'ServerGroup':
@@ -63,44 +62,34 @@ class ServerManager:
     Example:
         server = panel.servers.getServer('abc123')
         for server in panel.servers.getServers():
-            print(server.getName(), server.getStatus())
+            print(f'{server.getName()}: {server.getStatus()}')
     '''
     def __init__(self, panel):
         self.panel = panel
         self.api = panel.api.servers
 
-    def getServer(self, server_id: str, name: str = None) -> GenericServer:
+    def getServer(self, server_id: str, name: str = None, server_class: type = None, **options) -> Server:
         '''
         Returns a server.
 
         Args:
             server_id: Server UUID or short id.
             name: Optional display name used in logs and repr().
+            server_class: A Server subclass to create instead of Server, for example
+                one provided by a game extension.
+            **options: Extra keyword arguments for the server_class constructor.
 
         Example:
             server = panel.servers.getServer('abc123')
         '''
-        server = GenericServer(self.panel, server_id, name)
+        server = (server_class or Server)(self.panel, server_id, name, **options)
         server.refreshDetails()
         if name is None:
             server.name = server.getName()
         return server
 
-    def getMinecraftServer(self, server_id: str, name: str = None, server_domain: str = None, server_port: int = None) -> MinecraftServer:
-        '''
-        Returns a server with the Minecraft helpers of MinecraftServer.
-
-        Example:
-            server = panel.servers.getMinecraftServer('abc123')
-            server.say('Hello')
-        '''
-        server = MinecraftServer(self.panel, server_id, name, server_domain, server_port)
-        server.refreshDetails()
-        if name is None:
-            server.name = server.getName()
-        return server
-
-    def getServers(self, search: str = None, page: int = None, per_page: int = None, all_servers: bool = False):
+    def getServers(self, search: str = None, page: int = None, per_page: int = None, all_servers: bool = False,
+                   server_class: type = None, **options):
         '''
         Lists servers.
 
@@ -109,19 +98,22 @@ class ServerManager:
             page: Only fetch this page. By default every server is returned.
             per_page: Page size.
             all_servers: Admins only, include servers the user does not own or have access to.
+            server_class: A Server subclass to create for every server instead of Server.
+            **options: Extra keyword arguments for the server_class constructor.
 
         Returns:
-            A Page (list) of GenericServer objects.
+            A Page (list) of Server (or server_class) objects.
         '''
+        cls = server_class or Server
         return self.api.list(search, all_servers or None, page, per_page).map(
-            lambda data: GenericServer(self.panel, data=data)
+            lambda data: cls(self.panel, data=data, **options)
         )
 
     def listServers(self, search: str = None):
         '''Alias of getServers().'''
         return self.getServers(search)
 
-    def getServerByName(self, name: str) -> GenericServer:
+    def getServerByName(self, name: str) -> Server:
         '''Returns the first server whose name matches exactly, or None.'''
         for server in self.getServers(search=name):
             if server.getName() == name:

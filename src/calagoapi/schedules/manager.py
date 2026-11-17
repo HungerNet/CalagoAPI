@@ -19,7 +19,7 @@ class ScheduleManager:
         server.schedules.createSchedule(
             'Hourly announcement',
             triggers=[triggers.cron('0 0 * * * *')],
-            steps=[actions.sendCommand('say Thanks for playing!')],
+            steps=[actions.sendCommand('broadcast Thanks for playing!')],
         )
     '''
     def __init__(self, server):

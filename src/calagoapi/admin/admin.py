@@ -17,7 +17,6 @@ from calagoapi.admin.managers import (
     EggConfigurationManager,
     SubdomainDomainManager,
 )
-from calagoapi.extensions.compat import migrated_to
 from calagoapi.nodes import NodeManager
 from calagoapi.servers.admin import AdminServerManager
 from calagoapi.users import UserManager, Activity
@@ -157,8 +156,6 @@ class ExtensionManager:
         panel.admin.extensions.disable('dev.0x7d8.subdomainmanager')
         panel.admin.extensions.restart()
     '''
-    VERSION_CHANGER = 'dev.0x7d8.minecraftversionchanger'
-
     def __init__(self, panel):
         self.panel = panel
         self.api = panel.api.admin
@@ -221,27 +218,16 @@ class ExtensionManager:
         '''Restarts the panel to apply extension changes.'''
         return self.api.manageExtensions('restart', 'POST')
 
-    # Minecraft Version Changer
-    # Deprecated: moved to the calagoapi-version-changer extension, see servers/minecraft.py
-    @migrated_to('version_changer', 'calagoapi-version-changer')
-    def getVersionChangerSettings(self) -> dict:
-        '''Deprecated, use the calagoapi-version-changer extension. Returns the Version Changer settings.'''
-        return self.api.extension(self.VERSION_CHANGER, 'settings')['settings']
+    def call(self, extension: str, path: str, method: str = 'GET', json: dict = None):
+        '''
+        Calls an admin endpoint of a panel extension, `/api/admin/extensions/<extension>/<path>`.
 
-    @migrated_to('version_changer', 'calagoapi-version-changer')
-    def updateVersionChangerSettings(self, **settings) -> None:
-        '''Deprecated, use the calagoapi-version-changer extension. Changes Version Changer settings.'''
-        return self.api.extension(self.VERSION_CHANGER, 'settings', 'PUT', json=settings)
+        SDK extensions use this to wrap the admin API of the panel extension they support.
 
-    @migrated_to('version_changer', 'calagoapi-version-changer')
-    def getVersionChangerStatistics(self) -> dict:
-        '''Deprecated, use the calagoapi-version-changer extension. Returns install statistics.'''
-        return self.api.extension(self.VERSION_CHANGER, 'statistics/total')
-
-    @migrated_to('version_changer', 'calagoapi-version-changer')
-    def getVersionChangerDefaultOrder(self) -> list:
-        '''Deprecated, use the calagoapi-version-changer extension. Returns the default server type order.'''
-        return self.api.extension(self.VERSION_CHANGER, 'default-order')['mcjars_type_order']
+        Example:
+            panel.admin.extensions.call('dev.example.myextension', 'settings')
+        '''
+        return self.api.extension(extension, path, method, json=json)
 
 
 class AssetManager:
@@ -290,8 +276,8 @@ class Admin:
         for node in panel.admin.nodes.getNodes():
             print(node.getName(), node.isInMaintenance())
 
-        user = panel.admin.users.createUser('steve', 'steve@example.com')
-        panel.admin.servers.deployServer('Steve SMP', user, paper_egg, locations=[eu])
+        user = panel.admin.users.createUser('alex', 'alex@example.com')
+        panel.admin.servers.deployServer('Alex Survival', user, egg, locations=[eu])
     '''
     def __init__(self, panel):
         self.panel = panel

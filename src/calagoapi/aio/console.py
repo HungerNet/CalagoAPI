@@ -39,7 +39,7 @@ class AsyncConsole:
         await server.console.stop()
 
     Args:
-        server: The (regular) GenericServer whose console to open.
+        server: The (regular) Server whose console to open.
     '''
     def __init__(self, server):
         self.server = server

@@ -6,8 +6,15 @@ ENTRY_POINT_GROUP = 'calagoapi'
 
 # first-party extension ids -> PyPI package, for "pip install ..." hints
 FIRST_PARTY = {
-    'version_changer': 'calagoapi-version-changer',
-    'hungerbridge': 'calagoapi-hungerbridge',
+    'minecraft': 'calagoapi-minecraft',
+}
+
+# extension ids from CalagoAPI 1.x -> the first-party extension that replaced them
+REPLACED = {
+    'hungerbridge': 'minecraft',
+    'hunger_bridge': 'minecraft',
+    'version_changer': 'minecraft',
+    'minecraft_version_changer': 'minecraft',
 }
 
 

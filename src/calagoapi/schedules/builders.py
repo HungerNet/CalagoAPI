@@ -18,7 +18,7 @@ Example:
         triggers=[triggers.cron('0 0 4 * * *')],
         condition=conditions.serverState('running'),
         steps=[
-            actions.sendCommand('say Restarting in 1 minute'),
+            actions.sendCommand('broadcast Restarting in 1 minute'),
             actions.sleep(60_000),
             actions.createBackup('nightly'),
             actions.sendPower('restart'),
@@ -35,7 +35,7 @@ def variable(name: str) -> dict:
     References a schedule variable, for use in any text parameter.
 
     Example:
-        actions.waitForConsoleLine('joined the game', output_into=variable('line'))
+        actions.waitForConsoleLine('connected', output_into=variable('line'))
         actions.sendCommand(variable('line'))
     '''
     return {'variable': name}

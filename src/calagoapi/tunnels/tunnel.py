@@ -11,7 +11,7 @@ class TunnelManager:
     Example:
         if server.tunnel.isSupported() and not server.tunnel.exists():
             server.tunnel.createTunnel('survival')
-        server.tunnel.setPorts([25565])
+        server.tunnel.setPorts([7777])
         server.tunnel.connect(proxy_server)
         print(server.tunnel.getAddress())
     '''
@@ -85,10 +85,10 @@ class TunnelManager:
         Sets the exposed ports.
 
         Args:
-            ports: List of port numbers (tcp + udp), or {'port': 25565, 'protocols': ['tcp']} dicts.
+            ports: List of port numbers (tcp + udp), or {'port': 7777, 'protocols': ['tcp']} dicts.
 
         Example:
-            server.tunnel.setPorts([25565, {'port': 19132, 'protocols': ['udp']}])
+            server.tunnel.setPorts([7777, {'port': 27015, 'protocols': ['udp']}])
         '''
         ports = [p if isinstance(p, dict) else {'port': p, 'protocols': ['tcp', 'udp']} for p in ports]
         return self.api.setTunnelPorts(self.server_id, ports)

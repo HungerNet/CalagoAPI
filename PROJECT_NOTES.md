@@ -1,6 +1,7 @@
 # CalagoAPI: project notes
 
-Outcomes, decisions and open items from building CalagoAPI (October 2026).
+Outcomes, decisions and open items from building CalagoAPI (October 2026), updated for the
+2.0 rewrite (November 2026, design in `PLAN.md`).
 
 ## Status at a glance
 
@@ -11,9 +12,11 @@ Outcomes, decisions and open items from building CalagoAPI (October 2026).
 | Async API (`AsyncPanel`) | Done |
 | Retries / `with` blocks | Done |
 | Docs | Done: README + 15 guides in `docs/`, docstrings on all 1,250 public classes and methods |
-| Extension system | Done (November 2026): `calagoapi.extensions`, design in `PLAN.md`, guides in `docs/learning/`, examples in `examples/extensions/` |
-| First-party extensions | `calagoapi-version-changer`, `calagoapi-hungerbridge` in `src/extensions/` (independent PyPI packages) |
-| Offline test suite | Done: 122 tests (core, extension system, first-party extensions, examples), `pytest`, Python 3.9 and 3.14 |
+| 2.0 rewrite | Done (November 2026): game-agnostic `Server`, `calagoapi-minecraft`, camelCase extension API; design in `PLAN.md` |
+| Extension system | Done: `calagoapi.extensions`, reference `docs/extensions.md`, design record `docs/design/extension-system.md` |
+| First-party extensions | `calagoapi-minecraft` in `src/extensions/` (replaces `calagoapi-version-changer` and `calagoapi-hungerbridge`) |
+| Tutorials | 15 tutorials in three tracks, `docs/tutorials/`; examples in `examples/extensions/` and `examples/minecraft/` |
+| Offline test suite | Done: core + extension system + `calagoapi-minecraft` + examples, `pytest` (see `PLAN.md` for the last run) |
 | Licence metadata | Fixed: GPL-3.0, matches `LICENSE` |
 | Tested against a real panel | **Not yet** |
 | Git | **Not committed**, index was already in an odd state (see below) |
@@ -32,7 +35,7 @@ Outcomes, decisions and open items from building CalagoAPI (October 2026).
 src/calagoapi/
 ├── panel.py      Panel: entry point (servers, account, admin, auth, api)
 ├── api/          the only code that builds URLs (Client + one module per area)
-├── servers/      GenericServer, MinecraftServer, ServerManager, ServerGroup, AdminServer
+├── servers/      Server, ServerManager, ServerGroup, AdminServer   (MinecraftServer: calagoapi-minecraft)
 ├── console/      Console, ConsoleEvent: live console over the daemon websocket
 ├── aio/          AsyncPanel, AsyncServer, AsyncWrapper, AsyncConsole
 ├── files/  backups/  databases/  schedules/  users/  network/  tunnels/  nodes/  account/  admin/
@@ -56,8 +59,11 @@ Key conventions:
 | `Panel` signature | `Panel(url, api_key, name=None, timeout=10, verify=True, max_retries=3)` | `name` made optional |
 | Return values | objects, dicts or `None`; errors raise typed exceptions | instead of HungerLib's raw responses / `(status, text)` |
 | `getStatus()` | power state (`running`, `offline`, ...), same as HungerLib | `getInstallStatus()` covers install state |
-| HungerBridge | not in core; `calagoapi-hungerbridge` extension (Nov 2026) | console streaming comes from the Calagopus daemon; the extension covers the mod's own API (commands, players, TPS, ...) |
-| Version changer | moved to `calagoapi-version-changer` (Nov 2026) | depends on an optional panel extension; core keeps deprecated `@migrated_to` shims |
+| Game support | core is game-agnostic; `MinecraftServer(Server)` lives in `calagoapi-minecraft` (2.0) | enforced by `tests/test_architecture.py` |
+| HungerBridge | used only through HungerBridgePy (`server.bridge`), never re-implemented | HungerBridgePy is the source of truth for the protocol |
+| `sendCommand()` / `streamConsole()` on Minecraft | through HungerBridge (output, SSE log stream); no silent fallback to the panel | `sendPanelCommand()` / `server.console` for the panel route |
+| `getRAM()`, `getCPU()`, `stop()` | stay the panel's; JVM data is additive (`getMemoryInfo()`, ...) | matches what the panel shows and works without the plugin |
+| Version changer | `server.versions` in `calagoapi-minecraft` (2.0); 1.x shims removed | one package per game |
 | Extension system | class patching, entry point group `calagoapi`, explicit `enable()` | see `PLAN.md` for the full design and alternatives |
 | Licence | **GPL-3.0** (chosen by the user) | the `LICENSE` file is the legal text |
 | Async design | wrapper running the sync client in worker threads; native asyncio only for the console | one source of truth; new methods are async automatically |
@@ -120,10 +126,17 @@ After a Calagopus update: replace `openapi.json`, run `pytest`, add whatever it 
 3. **Git**: the CalagoAPI index had every file staged as deleted before work started. Suggested fix: `git reset`, then commit the new layout on a branch.
 4. ~~**CI**: run `pytest` on every push and pull request, and make the release job depend on it.~~
    Done: `.github/workflows/tests.yml`, called by `release.yml` before publishing.
-5. **PyPI trusted publishing** for `calagoapi-version-changer` and `calagoapi-hungerbridge`
-   (repository `HungerNet/CalagoAPI`, workflow `release.yml`) before their first release.
-6. **HungerBridge assumptions to confirm**: release jar names contain `<loader>-<mc version>`
-   (used by `install()`), and the bridge listens on the server's address (default URL).
+5. **PyPI trusted publishing** for `calagoapi-minecraft` (repository `HungerNet/CalagoAPI`,
+   workflow `release.yml`) and for `hungerbridge` (HungerBridgePy) before their first release.
+   `calagoapi-minecraft` needs `hungerbridge>=1.0.dev2` on PyPI to be installable.
+6. **HungerBridge checks**: the Gradle change that names jars `HungerBridge-<loader>-<mc>-<version>.jar`
+   (HungerBridge `build.gradle`) has not been built here (no JDK); build one target and check the
+   name. `createBridgeToken()` assumes the console line `... Retrieve it at: /pickup/<id>?passkey=<hex>`
+   (matches `CommonCommandHandler`). The default bridge URL (server address + 1913) only works when
+   HungerBridge's `bind-address` is not `127.0.0.1`.
+8. **Old packages**: `calagoapi-hungerbridge`, `calagoapi-version-changer`, `docs/learning/` and the old
+   first-party example were moved to `../_removed-in-calagoapi-2.0/` (they were untracked, so not in git);
+   delete that folder after review.
 7. **Subdomain Manager** is the next candidate for an extension (`calagoapi-subdomains`).
 
 ## Dependencies

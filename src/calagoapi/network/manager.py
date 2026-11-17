@@ -9,7 +9,7 @@ class NetworkManager:
 
     Example:
         print(server.network.getPrimaryAllocation().getAddress())
-        server.network.addFirewallRule('allow', ports=[25565], sources=['0.0.0.0/0'])
+        server.network.addFirewallRule('allow', ports=[7777], sources=['0.0.0.0/0'])
     '''
     def __init__(self, server):
         self.server = server
@@ -105,7 +105,7 @@ class NetworkManager:
 
         Args:
             rules: List of {'action': 'allow'|'deny', 'protocols': ['tcp', 'udp'],
-                'sources': ['1.2.3.4/32'], 'ports': [25565]} dicts.
+                'sources': ['1.2.3.4/32'], 'ports': [7777]} dicts.
         '''
         return self.api.setFirewallRules(self.server_id, rules)
 

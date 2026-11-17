@@ -10,7 +10,7 @@ class Node(AdminResource):
     Example:
         node = panel.admin.nodes.getNode('...')
         print(node.getName(), node.getSystemOverview()['version'])
-        node.createAllocations('0.0.0.0', range(25565, 25576))
+        node.createAllocations('0.0.0.0', range(7777, 7788))
         node.enableMaintenance()
         node.restartAllServers()
     '''
@@ -244,7 +244,7 @@ class Node(AdminResource):
 
         Args:
             ip: IP address.
-            ports: Iterable of ports, e.g. range(25565, 25600).
+            ports: Iterable of ports, e.g. range(7777, 7800).
             ip_alias: Hostname shown to users.
 
         Returns:

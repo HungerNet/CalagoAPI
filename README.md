@@ -3,39 +3,47 @@
 The Python SDK for [Calagopus](https://calagopus.com).
 
 CalagoAPI wraps the whole Calagopus API (servers, files, backups, databases,
-schedules, networking, your account, and full panel administration) in a
-small, hand-written API that reads like plain Python.
+schedules, networking, your account, and full panel administration) in a small,
+hand-written API that reads like plain Python. The core is **game-agnostic**;
+game-specific features ship as extension packages such as
+[calagoapi-minecraft](src/extensions/calagoapi-minecraft/README.md).
 
 ```python
 from calagoapi import Panel
 
-panel = Panel(
-    url='https://panel.example.com',
-    api_key='c7sp_...'
-)
+with Panel(url='https://panel.example.com', api_key='c7sp_...') as panel:
+    server = panel.servers.getServer('abc123')
+    server.restart()
 
-server = panel.servers.getServer('abc123')
-server.sendCommand('say Hello')
-server.restart()
+    if server.waitForOnline(timeout=120):
+        print(f'{server.name}: {server.getStatus()}, {server.getRAM()} MiB, up {server.getUptime(formatted=True)}')
 
-if server.isOnline():
-    print(server.getStatus(), server.getRAM(), server.getUptime(formatted=True))
-
-backup = server.createBackup('before-update')
+    backup = server.createBackup('before-update')
 ```
 
-If you have used [HungerLib](https://github.com/iFamished/HungerLib), you
-already know CalagoAPI. The same objects and method names
-(`Panel`, `GenericServer`, `MinecraftServer`, `getStatus()`, `isOnline()`,
-`createBackup()`, `listFiles()`, ...) work here, backed by Calagopus.
+If you have used [HungerLib](https://github.com/iFamished/HungerLib), you already know
+CalagoAPI: the same method names (`getStatus()`, `isOnline()`, `createBackup()`,
+`listFiles()`, ...) work here, backed by Calagopus.
 
 ## Installation
 
 ```bash
-pip install calagoapi
+pip install calagoapi                       # the core SDK: requests + websockets
+pip install calagoapi-minecraft             # optional: Minecraft (HungerBridge, Version Changer)
 ```
 
-CalagoAPI needs Python 3.9+ and depends on `requests` and `websockets`.
+Python 3.9+.
+
+## Packages
+
+```
+calagoapi                 Panel, Server (any game), managers, live console, AsyncPanel, extension system
+calagoapi-minecraft       MinecraftServer(Server), panel.minecraft     depends on calagoapi + hungerbridge
+hungerbridge              HungerBridgePy: client for the HungerBridge plugin/mod (separate repository)
+```
+
+`calagoapi` depends on neither HungerBridge nor HungerBridgePy. Minecraft support lives
+entirely in `calagoapi-minecraft`.
 
 ## Features
 
@@ -45,16 +53,14 @@ CalagoAPI needs Python 3.9+ and depends on `requests` and `websockets`.
 | **Live console** | Stream console output over the daemon websocket, wait for a line, callbacks for output, status, stats and every daemon event, automatic token renewal and reconnects |
 | **Files** | List, read, write, upload, download, rename, move, copy (also to other servers), compress, decompress, chmod, search, pull from URL, file revisions, SQLite queries, directory sizes |
 | **Backups** | Create, restore, download, lock, rename, bulk delete, backup groups with retention policies, usage |
-| **Databases** | Hosted databases, dedicated database instances (PostgreSQL, MariaDB, MongoDB, Redis), database users and grants, import/export, a full **database explorer** (tables, columns, rows, queries) |
+| **Databases** | Hosted databases, dedicated database instances (PostgreSQL, MariaDB, MongoDB, Redis), database users and grants, import/export, a full **database explorer** |
 | **Schedules** | Triggers (cron, crash, console line, resource usage, ...), conditions, 30+ step actions, import/export, live status, with builder helpers |
 | **Network** | Allocations, subdomains, per-server firewall, tunnels between servers |
-| **Subusers** | Invite, permissions, ignored files |
-| **Minecraft** | `server.properties` editing, EULA, console helpers; version changer and HungerBridge through [extensions](docs/extensions/06_First_Party_Extensions.md) |
-| **Extensions** | Add methods, properties and services to CalagoAPI from separate packages: `enable('version_changer')` ([guide](docs/extensions/01_Extensions_Overview.md)) |
 | **Account** | Profile, password, email, two-factor, API keys, SSH keys, passkeys, sessions, OAuth links, command snippets, activity |
-| **Admin** | Users, servers (create, deploy, transfer, suspend, limits), nodes, allocations, locations, nests and eggs, egg repositories, mounts, devices, roles, announcements, OAuth providers, database hosts, backup configurations and policies, settings, email templates, extensions, system health and updates |
+| **Admin** | Users, servers (create, deploy, transfer, suspend, limits), nodes, allocations, locations, nests and eggs, egg repositories, mounts, devices, roles, announcements, OAuth providers, database hosts, backup configurations and policies, settings, email templates, panel extensions, system health and updates |
 | **Async** | `AsyncPanel`: the whole API with `await`, plus a native asyncio live console |
-| **Reliability** | Automatic retries on rate limits (and on transient errors for reads), typed exceptions, automatic pagination |
+| **Extensions** | Add methods, properties and services to CalagoAPI from separate packages: `enable('...')` ([reference](docs/extensions.md)) |
+| **Minecraft** *(calagoapi-minecraft)* | Commands with output and console streaming through HungerBridge, players, TPS/MSPT, JVM metrics, Version Changer, `server.properties`, bridge install and token setup |
 
 ## Quick tour
 
@@ -64,27 +70,20 @@ CalagoAPI needs Python 3.9+ and depends on `requests` and `websockets`.
 status = server.getStatus()        # 'running', 'offline', 'starting' or 'stopping'
 
 if server.isOnline():
-    print(server.getCPU(), '%')
-    print(server.getRAM(), '/', server.getRAMLimit(), 'MiB')
-    print(server.getUptime(formatted=True))  # '3h 12m'
-
-server.isInstalled()
-server.isSuspended()
+    print(f'CPU {server.getCPU()} %, RAM {server.getRAM()} / {server.getRAMLimit()} MiB')
+    print(f'up {server.getUptime(formatted=True)}')   # 'up 3h 12m'
 ```
-
-Every important value has a getter *and* convenience checks, so you can
-inspect the exact state or just branch on it.
 
 ### Live console
 
 ```python
-for line in server.streamConsole():
-    if 'joined the game' in line:
+for line in server.streamConsole(timeout=60):
+    if 'error' in line.lower():
         print(line)
 
 with server.console as console:
-    console.sendCommand('save-all')
-    console.waitFor('Saved the game')
+    console.sendCommand('save')
+    console.waitFor('Saved')
 
 server.onConsoleLine(print)   # callbacks in a background thread
 ```
@@ -92,39 +91,27 @@ server.onConsoleLine(print)   # callbacks in a background thread
 ### Async
 
 ```python
+import asyncio
 from calagoapi import AsyncPanel
 
 async with AsyncPanel(url='https://panel.example.com', api_key='c7sp_...') as panel:
     servers = await panel.servers.getServers()
     statuses = await asyncio.gather(*(server.getStatus() for server in servers))
 
-    async for line in servers[0].streamConsole():
+    async for line in servers[0].streamConsole(timeout=30):
         print(line)
 ```
 
-### Files
+### Files and backups
 
 ```python
-for file in server.files.listFiles('/plugins'):
-    print(file.getName(), file.getSize(formatted=True))
+for file in server.files.listFiles('/config'):
+    print(f'{file.getName()} {file.getSize(formatted=True)}')
 
-properties = server.readFile('/server.properties')
-server.writeFile('/eula.txt', 'eula=true')
-server.files.uploadFile('/plugins', 'build/MyPlugin.jar')
-server.files.downloadFile('/world.zip', 'world.zip')
-```
-
-### Backups
-
-```python
 backup = server.createBackup('before-update')
 backup.waitUntilComplete()
-
 if backup.isSuccessful():
-    print(backup.getSize(formatted=True))
-
-backup.lock()
-backup.restore(truncate_directory=True)
+    server.writeFile('/config/server.cfg', 'max_players=32\n')
 ```
 
 ### Schedules
@@ -137,7 +124,7 @@ server.schedules.createSchedule(
     triggers=[triggers.cron('0 0 4 * * *')],
     condition=conditions.serverState('running'),
     steps=[
-        actions.sendCommand('say Restarting in 1 minute'),
+        actions.sendCommand('broadcast Restarting in 1 minute'),
         actions.sleep(60_000),
         actions.createBackup('nightly', foreground=True),
         actions.sendPower('restart'),
@@ -145,99 +132,69 @@ server.schedules.createSchedule(
 )
 ```
 
-### Databases
-
-```python
-db = server.createDatabase('stats')
-print(db.getConnectionString())
-
-db.explorer.createTable('players', [
-    {'name': 'id', 'type': 'INT', 'primary_key': True, 'auto_increment': True},
-    {'name': 'name', 'type': 'VARCHAR(32)'},
-])
-db.explorer.insertRow('players', {'name': 'Steve'})
-print(db.explorer.query('SELECT COUNT(*) FROM players'))
-```
-
-### Minecraft
-
-```python
-server = panel.servers.getMinecraftServer('abc123')
-
-server.say('Server update in 5 minutes!')
-server.setProperties({'max-players': 100, 'motd': 'Welcome!'})
-```
-
-### Extensions
-
-Optional features ship as separate packages and are switched on with `enable()`:
-
-```bash
-pip install calagoapi-version-changer calagoapi-hungerbridge
-```
+### Minecraft (calagoapi-minecraft)
 
 ```python
 from calagoapi.extensions import enable
 
-enable('version_changer')
-latest = server.getBuilds('PAPER', '1.21.11', page=1, per_page=1)[0]
-server.installVersion(latest)
-print(server.installedVersion)
+enable('minecraft', config={'bridge_token': 'calagoapi:9f2c...'})
+server = panel.minecraft.getServer('abc123', bridge_url='http://10.0.0.5:1913')
 
-enable('hungerbridge', config={'token': 'bot:9f2c...'})
-print(server.hungerbridge.players())
+print(server.sendCommand('list'))              # output, through HungerBridge
+for line in server.streamConsole(history=10, timeout=30):
+    print(line)
+print(f'TPS {server.getTPS("1m")}, heap {server.getMemoryInfo()["used"]:.0f} MiB, container {server.getRAM()} MiB')
+server.versions.install(server.versions.getLatestBuild('PAPER', '1.21.11'), backup=True)
 ```
 
-Write your own: [docs/extensions/04_Creating_Extensions.md](docs/extensions/04_Creating_Extensions.md).
+See the [Minecraft tutorials](docs/tutorials/README.md#track-3-minecraft).
 
 ### Administration
 
 ```python
-user = panel.admin.users.createUser('steve', 'steve@example.com')
+user = panel.admin.users.createUser('alex', 'alex@example.com')
 
 server = panel.admin.servers.deployServer(
-    'Steve SMP', owner=user, egg=panel.admin.nests.findEgg('Paper'),
+    'Alex Survival', owner=user, egg=panel.admin.nests.findEgg('My Game'),
     locations=[panel.admin.locations.getLocationByName('Frankfurt')],
     memory=4096, disk=20480,
 )
-
-for node in panel.admin.nodes.getNodes():
-    print(node.getName(), node.getSystemOverview()['version'])
 ```
 
 ### Errors
 
 ```python
-from calagoapi import NotFoundError, PermissionDeniedError, CalagoAPIError
+from calagoapi import CalagoAPIError, NotFoundError
 
 try:
     panel.servers.getServer('missing')
 except NotFoundError:
     print('No such server')
 except CalagoAPIError as e:
-    print(e.status_code, e.errors)
+    print(f'{e.status_code}: {e.errors}')
 ```
 
 ## Documentation
 
-Start with the [sequential tutorial track](docs/tutorials/00_Introduction.md) if
-you are new to CalagoAPI. Use the [API reference](docs/reference/README.md) to
-look up classes, methods, arguments, and behavior. Contributors can start at
-[architecture](docs/architecture/Architecture.md); extension authors can start
-at the [extension overview](docs/extensions/01_Extensions_Overview.md).
+- **[Tutorials](docs/tutorials/README.md)**: 15 tutorials in three tracks (core SDK, extensions, Minecraft)
+- **[Reference guides](docs/README.md)**: one page per area, plus [Extensions](docs/extensions.md)
+- [Migrating to 2.0](docs/migrating-to-2.0.md), [Migrating from HungerLib](docs/migrating-from-hungerlib.md)
+- [Architecture](docs/architecture.md) (contributors), [PLAN.md](PLAN.md) (the 2.0 design record)
+- Examples: [examples/](examples/README.md)
 
-Every public class and method also has a docstring with parameters and an
-example, so `help(server.files)` works from a Python shell.
+Every public class and method has a docstring with parameters and an example, so
+`help(server.files)` works from a Python shell.
 
 ## Development
 
 ```bash
 pip install -e .[dev]
+pip install -e src/extensions/calagoapi-minecraft     # needs hungerbridge (HungerBridgePy)
 pytest
 ```
 
-The tests run offline against `openapi.json` and a fake daemon. See
-[Architecture](docs/architecture/Architecture.md#tests).
+The tests run offline against `openapi.json`, a fake daemon and a fake HungerBridge. See
+[Architecture](docs/architecture.md#tests).
 
 ## License
 

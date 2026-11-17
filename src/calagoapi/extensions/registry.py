@@ -18,8 +18,8 @@ from calagoapi.extensions.base import (
     normalizeDependencies,
     validateExtensionClass,
 )
-from calagoapi.extensions.compat import migratedTo
-from calagoapi.extensions.discovery import FIRST_PARTY, describeEntryPoint, entryPoints
+from calagoapi.extensions.compat import migrationTarget
+from calagoapi.extensions.discovery import FIRST_PARTY, REPLACED, describeEntryPoint, entryPoints
 from calagoapi.extensions.exceptions import (
     CircularDependencyError,
     ConfigurationError,
@@ -173,8 +173,8 @@ class ExtensionRegistry:
     Example:
         from calagoapi.extensions import registry
 
-        registry.enable('version_changer')
-        print(registry.owner_of(MinecraftServer, 'installVersion'))   # 'version_changer'
+        registry.enable('monitoring')
+        print(registry.ownerOf(Server, 'getMemoryPercent'))   # 'monitoring'
         print(registry.describe())
     '''
     def __init__(self):
@@ -347,7 +347,11 @@ class ExtensionRegistry:
         close = difflib.get_close_matches(name, known, n=3)
         if close:
             lines.append(f'Did you mean: {", ".join(repr(c) for c in close)}?')
-        if name in FIRST_PARTY:
+        if name in REPLACED:
+            replacement = REPLACED[name]
+            lines.append(f'{name!r} was replaced by {replacement!r} in CalagoAPI 2.0 '
+                         f'(pip install {FIRST_PARTY[replacement]}); see docs/migrating-to-2.0.md.')
+        elif name in FIRST_PARTY:
             lines.append(f'Install it with: pip install {FIRST_PARTY[name]}')
         lines.append(f'Installed extensions: {", ".join(sorted(self._classes)) or "none"}.')
         for error in self._failed_entry_points.values():
@@ -360,11 +364,11 @@ class ExtensionRegistry:
             self._loadAll()
             return sorted(self._classes)
 
-    def get_class(self, extension_id: str):
+    def getClass(self, extension_id: str):
         '''Returns the Extension class for an id or alias (enabled or not).'''
         return self.resolve(extension_id)[1]
 
-    def is_enabled(self, extension_id: str) -> bool:
+    def isEnabled(self, extension_id: str) -> bool:
         '''True if the extension (id or alias) is enabled. Never imports anything.'''
         with self._lock:
             resolved, _ = self._find(extension_id)
@@ -491,7 +495,7 @@ class ExtensionRegistry:
         instance._merged_config = merged
 
         try:
-            validated = instance.validate_config(copy.deepcopy(merged))
+            validated = instance.validateConfig(copy.deepcopy(merged))
         except ConfigurationError:
             raise
         except Exception as e:
@@ -499,7 +503,7 @@ class ExtensionRegistry:
         if validated is None:
             validated = merged
         if not isinstance(validated, Mapping):
-            raise ExtensionDefinitionError(f'{extension_class.__name__}.validate_config() must return a dict')
+            raise ExtensionDefinitionError(f'{extension_class.__name__}.validateConfig() must return a dict')
         instance.config = MappingProxyType(dict(validated))
 
         specs = self._collectMembers(extension_class)
@@ -523,11 +527,11 @@ class ExtensionRegistry:
             self._enabled[extension_id] = instance
             setattr(extension_class, '_enabled_instance', instance)
             try:
-                instance.on_enable()
+                instance.onEnable()
             except ExtensionError:
                 raise
             except Exception as e:
-                raise ExtensionError(f'on_enable() of extension {extension_id!r} failed: {type(e).__name__}: {e}') from e
+                raise ExtensionError(f'onEnable() of extension {extension_id!r} failed: {type(e).__name__}: {e}') from e
         except BaseException:
             self._rollback(extension_id, installed)
             raise
@@ -548,7 +552,7 @@ class ExtensionRegistry:
             if explicit and not found:
                 raise ExtensionDefinitionError(
                     f'{extension_class.__name__}.members contains {value!r}, which is not decorated with '
-                    f'@method, @property_extension or @class_extension')
+                    f'@method, @propertyExtension or @classExtension')
             for spec in found:
                 # module scanning only picks up members from the extension's own package
                 if not explicit and spec.source.split('.')[0] != package:
@@ -638,7 +642,7 @@ class ExtensionRegistry:
         for cls in target.__mro__:
             if name in vars(cls) and (cls, name) not in self._registrations:
                 existing = vars(cls)[name]
-                if (cls is target and item.kind == 'method' and migratedTo(existing) in aliases):
+                if (cls is target and item.kind == 'method' and migrationTarget(existing) in aliases):
                     item.replaced = existing  # migration handover from core
                     break
                 conflict(_ownerLabel(cls), f'{cls.__name__} already defines {name!r} '
@@ -697,8 +701,8 @@ class ExtensionRegistry:
             namespaced: Include members placed inside namespaces.
 
         Example:
-            for r in registry.registrations(owner='version_changer'):
-                print(r)    # MinecraftServer.installVersion (method, from 'version_changer')
+            for r in registry.registrations(owner='monitoring'):
+                print(r)    # Server.getMemoryPercent (method, from 'monitoring')
         '''
         with self._lock:
             if owner is not None:
@@ -707,13 +711,13 @@ class ExtensionRegistry:
         return [r for r in items
                 if (owner is None or r.owner == owner) and (target is None or r.target is target)]
 
-    def owner_of(self, target: type, name: str) -> str:
+    def ownerOf(self, target: type, name: str) -> str:
         '''
         Returns which extension provides `name` on `target` (or a base class), or None
         for built-ins and unknown names.
 
         Example:
-            registry.owner_of(MinecraftServer, 'installVersion')   # 'version_changer'
+            registry.ownerOf(Server, 'getMemoryPercent')   # 'monitoring'
         '''
         with self._lock:
             for cls in target.__mro__:

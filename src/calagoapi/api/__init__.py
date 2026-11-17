@@ -7,7 +7,6 @@ from .schedules import SchedulesAPI
 from .network import NetworkAPI
 from .users import UsersAPI
 from .attachments import AttachmentsAPI
-from .versions import VersionsAPI
 from .account import AccountAPI
 from .auth import AuthAPI
 from .public import PublicAPI
@@ -36,7 +35,6 @@ class API:
         self.network = NetworkAPI(client)
         self.users = UsersAPI(client)
         self.attachments = AttachmentsAPI(client)
-        self.versions = VersionsAPI(client)
         self.account = AccountAPI(client)
         self.auth = AuthAPI(client)
         self.public = PublicAPI(client)
@@ -54,7 +52,6 @@ __all__ = [
     'NetworkAPI',
     'UsersAPI',
     'AttachmentsAPI',
-    'VersionsAPI',
     'AccountAPI',
     'AuthAPI',
     'PublicAPI',

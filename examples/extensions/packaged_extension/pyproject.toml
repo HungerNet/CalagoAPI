@@ -14,7 +14,7 @@ version = "1.0.0"
 description = "Example CalagoAPI extension: keep notes on servers."
 requires-python = ">=3.9"
 # Depend on calagoapi itself; CalagoAPI never installs extensions on its own.
-dependencies = ["calagoapi>=1.0.dev2"]
+dependencies = ["calagoapi>=2.0.dev1"]
 
 # This is the whole discovery mechanism:
 #   group "calagoapi", name = the extension id, value = "module:ExtensionClass"

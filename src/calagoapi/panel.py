@@ -36,7 +36,7 @@ class Panel:
         )
 
         server = panel.servers.getServer('abc123')
-        server.sendCommand('say Hello')
+        server.sendCommand('status')
         server.restart()
 
         # or close the connections automatically

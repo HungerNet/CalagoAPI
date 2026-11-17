@@ -61,10 +61,10 @@ class Nest(AdminResource):
     A nest is a category of eggs (server types).
 
     Example:
-        nest = panel.admin.nests.getNestByName('Minecraft')
+        nest = panel.admin.nests.getNestByName('Games')
         for egg in nest.getEggs():
             print(egg.getName())
-        nest.importEggsFromUrls(['https://example.com/egg-paper.json'])
+        nest.importEggsFromUrls(['https://example.com/egg-my-game.json'])
     '''
     collection = 'nests'
 
@@ -127,9 +127,9 @@ class Egg(AdminResource):
     An egg defines a server type: its install script, startup command, images and variables.
 
     Example:
-        egg = nest.getEgg('Paper')
+        egg = nest.getEgg('My Game')
         print(egg.getDockerImages())
-        egg.updateFromUrl('https://example.com/egg-paper.json')
+        egg.updateFromUrl('https://example.com/egg-my-game.json')
     '''
     collection = None
 
@@ -150,7 +150,7 @@ class Egg(AdminResource):
         return self.data.get('docker_images', {})
 
     def getFeatures(self) -> list:
-        '''Returns the egg features, e.g. ["eula", "java_version"].'''
+        '''Returns the egg features, e.g. ["eula", "java_version"] (egg-defined).'''
         return self.data.get('features', [])
 
     def getFileDenylist(self) -> list:
@@ -171,7 +171,7 @@ class Egg(AdminResource):
         Adds a variable.
 
         Example:
-            egg.createVariable('Server Jar', 'SERVER_JARFILE', 'server.jar', rules=['required', 'string'])
+            egg.createVariable('Max Players', 'MAX_PLAYERS', '20', rules=['required', 'integer'])
         '''
         if order is None:
             order = len(self.getVariables()) + 1
@@ -257,7 +257,7 @@ class EggVariable(AdminResource):
     collection = None
 
     def getEnvVariable(self) -> str:
-        '''Returns the environment variable name, e.g. "SERVER_JARFILE".'''
+        '''Returns the environment variable name, e.g. "MAX_PLAYERS".'''
         return self.data.get('env_variable')
 
     def getDefaultValue(self) -> str:
@@ -870,7 +870,7 @@ class EggRepository(AdminResource):
     A git repository of eggs that can be synced and installed from.
 
     Example:
-        repo = panel.admin.egg_repositories.createEggRepository('Pelican eggs', 'https://github.com/pelican-eggs/minecraft')
+        repo = panel.admin.egg_repositories.createEggRepository('Pelican eggs', 'https://github.com/pelican-eggs/games-steamcmd')
         repo.sync()
         repo.installEggs(repo.getEggs(), nest)
     '''

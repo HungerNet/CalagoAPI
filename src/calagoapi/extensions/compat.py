@@ -8,7 +8,7 @@ from calagoapi.extensions.exceptions import ExtensionDeprecationWarning
 MIGRATED_ATTRIBUTE = '_calagoapi_migrated_to_'
 
 
-def migrated_to(extension_id: str, package: str):
+def migratedTo(extension_id: str, package: str):
     '''
     Marks a built-in method that moved to an extension.
 
@@ -22,9 +22,9 @@ def migrated_to(extension_id: str, package: str):
         package: PyPI package of that extension, used in the warning.
 
     Example:
-        class MinecraftServer(GenericServer):
-            @migrated_to('version_changer', 'calagoapi-version-changer')
-            def installVersion(self, build, ...):
+        class Server(Model):
+            @migratedTo('subdomains', 'calagoapi-subdomains')
+            def getSubdomains(self):
                 ...
     '''
     def decorator(func):
@@ -45,6 +45,6 @@ def migrated_to(extension_id: str, package: str):
     return decorator
 
 
-def migratedTo(value):
+def migrationTarget(value):
     '''Returns the extension id a built-in member was handed to, or None'''
     return getattr(value, MIGRATED_ATTRIBUTE, None)

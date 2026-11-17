@@ -109,8 +109,8 @@ class Console:
     2. Wait for something:
 
         with server.console as console:
-            console.sendCommand('save-all')
-            console.waitFor('Saved the game', timeout=30)
+            console.sendCommand('save')
+            console.waitFor('Saved', timeout=30)
 
     3. Callbacks in a background thread:
 
@@ -211,7 +211,7 @@ class Console:
         Sends a console command over the websocket.
 
         Example:
-            console.sendCommand('say Hello')
+            console.sendCommand('status')
         '''
         self._send('send command', command)
 
@@ -278,7 +278,7 @@ class Console:
 
         Example:
             for line in console.lines(history=False):
-                if 'joined the game' in line:
+                if 'connected' in line:
                     print(line)
         '''
         self.connect()
@@ -296,8 +296,8 @@ class Console:
             WaitTimeoutError: No matching line within `timeout` seconds.
 
         Example:
-            console.sendCommand('save-all')
-            console.waitFor('Saved the game')
+            console.sendCommand('save')
+            console.waitFor('Saved')
         '''
         self.connect()
         deadline = time.monotonic() + timeout

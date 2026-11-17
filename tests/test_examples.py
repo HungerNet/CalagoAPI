@@ -29,12 +29,12 @@ def test_example_runs(path):
 def test_packaged_extension(tmp_path):
     package = os.path.join(ROOT, 'examples', 'extensions', 'packaged_extension')
     script = f'''
-from calagoapi import Panel, GenericServer
+from calagoapi import Panel, Server
 from calagoapi.extensions import register, enable
 from calagoapi_server_notes.extension import ServerNotesExtension
 register(ServerNotesExtension)
 enable('server_notes', config={{'path': {str(tmp_path / 'notes.json')!r}}})
-server = GenericServer(Panel('https://panel.example.com', 'key'), 'abc', data={{'uuid': 'abc'}})
+server = Server(Panel('https://panel.example.com', 'key'), 'abc', data={{'uuid': 'abc'}})
 server.notes.add('first')
 server.notes.add('second')
 assert server.notes.list() == ['first', 'second'], server.notes.list()

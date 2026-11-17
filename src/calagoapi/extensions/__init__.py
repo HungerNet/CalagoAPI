@@ -5,19 +5,15 @@ from separately installed packages.
 Example:
     from calagoapi.extensions import enable
 
-    enable('version_changer')
-    server.installVersion(build)
-    print(server.installedVersion)
+    enable('monitoring', config={'warn_percent': 80})   # an installed extension package
+    print(server.getMemoryPercent())
 
-    enable('hungerbridge', config={'token': 'id:secret'})
-    server.hungerbridge.players()
-
-See docs/learning/extensions.md for the full guide.
+Writing extensions: docs/extensions.md and docs/tutorials/extensions/.
 '''
 from .base import Extension, ExtensionMetadata, Alias, Dependency
-from .members import method, property_extension, class_extension, MemberSpec, ExtensionNamespace
+from .members import method, propertyExtension, classExtension, MemberSpec, ExtensionNamespace
 from .registry import ExtensionRegistry, Registration
-from .compat import migrated_to
+from .compat import migratedTo
 from .discovery import ENTRY_POINT_GROUP
 from .exceptions import (
     ExtensionError,
@@ -61,8 +57,8 @@ def enable(extension_id: str, mode: str = None, config: dict = None) -> Extensio
         ConfigurationError: Invalid config, or a different config/mode than before.
 
     Example:
-        enable('version_changer')
-        enable('hungerbridge', mode='namespace', config={'mc_version': '1.21.11'})
+        enable('monitoring')
+        enable('notes', mode='namespace', config={'path': 'notes.json'})
     '''
     return registry.enable(extension_id, mode=mode, config=config)
 
@@ -82,19 +78,19 @@ def register(extension_class):
     return registry.register(extension_class)
 
 
-def get_extension(extension_id: str) -> Extension:
+def getExtension(extension_id: str) -> Extension:
     '''
     Returns the enabled Extension instance (for its config, mode and metadata).
 
     Example:
-        get_extension('hungerbridge').config['port']
+        getExtension('monitoring').config['warn_percent']
     '''
     return registry.get(extension_id)
 
 
-def is_enabled(extension_id: str) -> bool:
+def isEnabled(extension_id: str) -> bool:
     '''Returns True if the extension (id or alias) is enabled.'''
-    return registry.is_enabled(extension_id)
+    return registry.isEnabled(extension_id)
 
 
 def available() -> list:
@@ -102,7 +98,7 @@ def available() -> list:
     return registry.available()
 
 
-def enabled_extensions() -> list:
+def enabledExtensions() -> list:
     '''Returns the enabled Extension instances, in the order they were enabled.'''
     return registry.enabled()
 
@@ -110,10 +106,10 @@ def enabled_extensions() -> list:
 __all__ = [
     'enable',
     'register',
-    'get_extension',
-    'is_enabled',
+    'getExtension',
+    'isEnabled',
     'available',
-    'enabled_extensions',
+    'enabledExtensions',
     'registry',
     'ExtensionRegistry',
     'Registration',
@@ -124,11 +120,11 @@ __all__ = [
     'Alias',
     'Dependency',
     'method',
-    'property_extension',
-    'class_extension',
+    'propertyExtension',
+    'classExtension',
     'MemberSpec',
     'ExtensionNamespace',
-    'migrated_to',
+    'migratedTo',
     'ENTRY_POINT_GROUP',
 
     # errors

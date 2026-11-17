@@ -127,16 +127,6 @@ def scenarioNetwork(panel):
     server.tunnel.disconnect(server, incoming=True)
 
 
-def scenarioMinecraft(panel):
-    server = panel.servers.getMinecraftServer('abc123', server_domain='play.example.com')
-    assert server.getAddress() == 'play.example.com:25565'
-    server.say('hi')
-    server.tellraw('@a', {'text': 'hi', 'color': 'gold'})
-    server.installVersion({'uuid': UUID})
-    server.getVersions('PAPER', page=1, per_page=5)
-    server.getBuilds('PAPER', '1.21.1', page=1, per_page=5)
-
-
 def scenarioAuth(panel):
     panel.auth.getSecurityKeyOptions('steve')
     panel.auth.getSecurityKeyOptions()
@@ -179,7 +169,6 @@ SCENARIOS = [
     scenarioSchedules,
     scenarioDatabases,
     scenarioNetwork,
-    scenarioMinecraft,
     scenarioAuth,
     scenarioAdmin,
 ]

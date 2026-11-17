@@ -23,6 +23,21 @@ NOT_WRAPPED = {
     ('GET', '/api/auth/oauth/redirect/{oauth_provider}'),
 }
 
+# game-specific panel extensions are wrapped by SDK extension packages, not by the
+# game-agnostic core; their own test suites check these endpoints against the spec
+# (calagoapi-minecraft: src/extensions/calagoapi-minecraft/tests/test_versions.py)
+WRAPPED_BY_EXTENSIONS = {
+    ('GET', '/api/client/servers/{server}/minecraft/versions/installed'),
+    ('GET', '/api/client/servers/{server}/minecraft/versions/types'),
+    ('GET', '/api/client/servers/{server}/minecraft/versions/types/{type}'),
+    ('GET', '/api/client/servers/{server}/minecraft/versions/types/{type}/{version}'),
+    ('POST', '/api/client/servers/{server}/minecraft/versions/install'),
+    ('GET', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/settings'),
+    ('PUT', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/settings'),
+    ('GET', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/statistics/total'),
+    ('GET', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/default-order'),
+}
+
 
 def test_every_method_matches_the_spec(panel, fake):
     calls_ok, errors = exerciseAll(panel, fake)
@@ -37,11 +52,18 @@ def test_every_endpoint_is_wrapped(panel, fake):
         scenario(panel)
 
     spec = {(method, template) for _, method, _, template, _ in fake.endpoints}
-    missing = sorted(spec - fake.hit - NOT_WRAPPED)
+    missing = sorted(spec - fake.hit - NOT_WRAPPED - WRAPPED_BY_EXTENSIONS)
     assert not missing, 'Endpoints not wrapped by CalagoAPI:\n' + '\n'.join(f'{m} {p}' for m, p in missing)
 
 
 def test_not_wrapped_list_is_current(fake):
     spec = {(method, template) for _, method, _, template, _ in fake.endpoints}
-    stale = NOT_WRAPPED - spec
-    assert not stale, f'Remove these from NOT_WRAPPED, they left the spec: {sorted(stale)}'
+    stale = (NOT_WRAPPED | WRAPPED_BY_EXTENSIONS) - spec
+    assert not stale, f'Remove these from NOT_WRAPPED / WRAPPED_BY_EXTENSIONS, they left the spec: {sorted(stale)}'
+
+
+def test_core_does_not_call_extension_endpoints(panel, fake):
+    exerciseAll(panel, fake)
+    for scenario in SCENARIOS:
+        scenario(panel)
+    assert not (fake.hit & WRAPPED_BY_EXTENSIONS)

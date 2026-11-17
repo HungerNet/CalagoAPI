@@ -10,7 +10,7 @@ class ExtensionError(CalagoAPIError):
         from calagoapi.extensions import enable, ExtensionError
 
         try:
-            enable('hungerbridge')
+            enable('monitoring')
         except ExtensionError as e:
             print(e)
     '''

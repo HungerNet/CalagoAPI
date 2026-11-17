@@ -144,7 +144,7 @@ class Schedule(Model):
             order: Position. Defaults to the end.
 
         Example:
-            schedule.addStep(actions.sendCommand('say Hello'))
+            schedule.addStep(actions.sendCommand('status'))
         '''
         if order is None:
             order = max([s.getOrder() for s in self.getSteps()], default=0) + 1

@@ -8,7 +8,7 @@ In namespace mode, an extension's methods and properties live under one
 attribute, `obj.<namespace>`:
 
     server.stats.players()
-    server.stats.tps
+    server.stats.load
 
 Only that one attribute can clash with other names, so namespace mode is the
 safe choice for extensions with short or generic method names.
@@ -19,35 +19,35 @@ Covers:
     - `self` inside methods is still the server
     - services are not moved by the mode
 '''
-from calagoapi import Panel, MinecraftServer
+from calagoapi import Panel, Server
 from calagoapi.extensions import (
     Extension,
     ExtensionMetadata,
-    class_extension,
+    classExtension,
     enable,
     method,
-    property_extension,
+    propertyExtension,
     register,
 )
 
 
-@method(MinecraftServer)
+@method(Server)
 def players(self) -> list:
     # `self` is the server, not the namespace object.
     return self.data.get('players', [])
 
 
-@method(MinecraftServer)
+@method(Server)
 def status(self) -> str:
     return f'{self.getName()}: {len(players(self))} online'
 
 
-@property_extension(MinecraftServer)
-def tps(self) -> float:
-    return self.data.get('tps', 20.0)
+@propertyExtension(Server)
+def load(self) -> float:
+    return self.data.get('load', 0.0)
 
 
-@class_extension(MinecraftServer, 'stats_history')
+@classExtension(Server, 'stats_history')
 class StatsHistory:
     def __init__(self, server):
         self.samples = []
@@ -64,12 +64,12 @@ register(StatsExtension)
 enable('stats')
 
 panel = Panel(url='https://panel.example.com', api_key='not-a-real-key')
-server = MinecraftServer(panel, 'abc123', data={'uuid': 'abc123', 'name': 'Survival', 'players': ['Steve'], 'tps': 19.8})
+server = Server(panel, 'abc123', data={'uuid': 'abc123', 'name': 'Survival', 'players': ['alice'], 'load': 0.42})
 
-print(server.stats.players())       # ['Steve']
+print(server.stats.players())       # ['alice']
 print(server.stats.status())        # Survival: 1 online
-print(server.stats.tps)             # 19.8
-print(dir(server.stats))            # ['players', 'status', 'tps']
+print(server.stats.load)            # 0.42
+print(dir(server.stats))            # ['load', 'players', 'status']
 print(hasattr(server, 'players'))   # False: nothing was added directly
 print(server.stats is server.stats) # True: the namespace object is cached
 
@@ -78,9 +78,6 @@ print(type(server.stats_history).__name__)   # StatsHistory
 
 
 # Users choose the mode, whatever the default is:
-#
-#     enable('version_changer', mode='namespace')
-#     server.version_changer.installVersion(build)
 #
 #     enable('stats', mode='direct')
 #     server.players()

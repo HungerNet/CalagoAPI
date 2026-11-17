@@ -48,7 +48,7 @@ class Alias:
         message: Optional text appended to the warning.
 
     Example:
-        aliases = ['version_changer', Alias('mc_versions', deprecated=True)]
+        aliases = ['monitor', Alias('server_monitor', deprecated=True)]
     '''
     name: str
     deprecated: bool = False
@@ -66,7 +66,7 @@ class Dependency:
         optional: Enable it if installed, skip it silently otherwise.
 
     Example:
-        dependencies = ['version_changer', Dependency('metrics', optional=True)]
+        dependencies = ['notes', Dependency('metrics', optional=True)]
     '''
     extension_id: str
     optional: bool = False
@@ -103,14 +103,14 @@ class Extension:
         enabled_by: Id of the extension that enabled this one as a dependency, or None.
 
     Example:
-        class VersionChangerExtension(Extension):
-            extension_id = 'version_changer'
-            metadata = ExtensionMetadata(author='iFamished', version='1.0.0', schema=1)
+        class MonitoringExtension(Extension):
+            extension_id = 'monitoring'
+            metadata = ExtensionMetadata(author='you', version='1.0.0', schema=1)
             default_mode = 'direct'
-            default_config = {'auto_backup': False}
+            default_config = {'warn_percent': 90}
 
-            def on_enable(self):
-                print('version changer ready, config:', dict(self.config))
+            def onEnable(self):
+                print(f'monitoring ready, config: {dict(self.config)}')
     '''
     extension_id = None
     metadata = ExtensionMetadata()
@@ -133,16 +133,16 @@ class Extension:
         return f'<Extension {self.extension_id!r} {state}>'
 
     # lifecycle hooks, override what you need
-    def validate_config(self, config: dict) -> dict:
+    def validateConfig(self, config: dict) -> dict:
         '''
         Checks the merged configuration before anything is installed.
 
         Return the (optionally normalized) config, or raise ConfigurationError.
-        Called once per enable, before on_enable().
+        Called once per enable, before onEnable().
         '''
         return config
 
-    def on_enable(self) -> None:
+    def onEnable(self) -> None:
         '''Called once after every member is installed. Raising here undoes the enable.'''
 
     @classmethod
@@ -152,9 +152,9 @@ class Extension:
 
         Handy inside extension members to read the configuration:
 
-            @method(MinecraftServer)
-            def installVersion(self, build):
-                config = VersionChangerExtension.get().config
+            @method(Server)
+            def isMemoryCritical(self):
+                limit = MonitoringExtension.get().config['warn_percent']
         '''
         instance = cls.__dict__.get('_enabled_instance')
         if instance is None:
@@ -205,7 +205,7 @@ def validateExtensionClass(extension_class):
     if not isinstance(extension_id, str) or not ID_PATTERN.match(extension_id):
         raise ExtensionDefinitionError(
             f'{name}.extension_id must be lowercase letters, digits and underscores, starting with a letter '
-            f'(e.g. "version_changer"), got {extension_id!r}')
+            f'(e.g. "monitoring"), got {extension_id!r}')
     for alias in normalizeAliases(extension_class):
         if not ID_PATTERN.match(alias.name):
             raise ExtensionDefinitionError(f'{name}: alias {alias.name!r} is not a valid extension id')

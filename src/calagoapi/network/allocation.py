@@ -7,7 +7,7 @@ class Allocation(Model):
 
     Example:
         primary = server.network.getPrimaryAllocation()
-        print(primary.getAddress())  # 'play.example.com:25565'
+        print(primary.getAddress())  # 'game.example.com:7777'
         extra = server.network.createAllocation()
         extra.setNotes('Dynmap')
     '''

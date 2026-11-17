@@ -1,5 +1,17 @@
+'''
+CalagoAPI: a Python SDK for the Calagopus panel.
+
+The core package is game-agnostic. Game-specific features ship as separate
+extension packages (see `calagoapi.extensions`).
+
+Example:
+    from calagoapi import Panel
+
+    with Panel(url='https://panel.example.com', api_key='...') as panel:
+        for server in panel.servers.getServers():
+            print(f'{server.name}: {server.getStatus()}')
+'''
 from importlib.metadata import version as _pkg_version, PackageNotFoundError
-from types import SimpleNamespace
 
 # package version
 try:
@@ -11,7 +23,7 @@ except PackageNotFoundError:
 from .panel import Panel
 from .aio import AsyncPanel, AsyncConsole
 from .console import Console, ConsoleEvent
-from .servers import GenericServer, MinecraftServer, AdminServer, ServerGroup
+from .servers import Server, AdminServer, ServerGroup
 from .files import File
 from .backups import Backup, BackupGroup
 from .databases import Database, DatabaseInstance, InstanceDatabase, InstanceUser, DatabaseExplorer
@@ -67,32 +79,6 @@ from .utils import (
     WaitTimeoutError,
 )
 
-# namespaces
-utils = SimpleNamespace(
-    convert = convert,
-    formatBytes = formatBytes,
-    formatDuration = formatDuration,
-    waitForState = waitForState,
-    waitForOnline = waitForOnline,
-    waitForOffline = waitForOffline,
-    secsUntil = secsUntil,
-    minsUntil = minsUntil,
-)
-
-servers = SimpleNamespace(
-    Panel = Panel,
-    Generic = GenericServer,
-    Minecraft = MinecraftServer,
-)
-
-schedules = SimpleNamespace(
-    triggers = triggers,
-    conditions = conditions,
-    actions = actions,
-    backups = backup_selectors,
-    variable = variable,
-)
-
 
 __all__ = [
     '__version__',
@@ -103,8 +89,7 @@ __all__ = [
     'Console',
     'AsyncConsole',
     'ConsoleEvent',
-    'GenericServer',
-    'MinecraftServer',
+    'Server',
     'AdminServer',
     'ServerGroup',
     'Page',
@@ -184,11 +169,6 @@ __all__ = [
     'ConsoleError',
     'InvalidActionError',
     'WaitTimeoutError',
-
-    # namespaces
-    'utils',
-    'servers',
-    'schedules',
 
     # extension system
     'extensions',

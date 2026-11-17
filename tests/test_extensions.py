@@ -14,7 +14,7 @@ import warnings
 
 import pytest
 
-from calagoapi import MinecraftServer
+from calagoapi import Server
 from calagoapi.aio.panel import AsyncWrapper
 from calagoapi.extensions import (
     Alias,
@@ -33,10 +33,10 @@ from calagoapi.extensions import (
     ExtensionNotEnabledError,
     ExtensionNotFoundError,
     ExtensionRegistry,
-    class_extension,
+    classExtension,
     method,
-    migrated_to,
-    property_extension,
+    migratedTo,
+    propertyExtension,
 )
 
 
@@ -78,11 +78,11 @@ def test_direct_mode_adds_members_to_existing_and_future_objects(registry):
     def greet(self, greeting='hello'):
         return f'{greeting} {self.name}'
 
-    @property_extension(Target)
+    @propertyExtension(Target)
     def shout(self):
         return self.name.upper()
 
-    @class_extension(Target, 'tools')
+    @classExtension(Target, 'tools')
     class Tools:
         def __init__(self, owner):
             self.owner = owner
@@ -121,7 +121,7 @@ def test_enable_is_idempotent_and_accepts_aliases(registry):
     assert registry.enable('old_pinger') is first
     assert registry.enable('pinger', config={}) is first
     assert registry.enable('pinger', mode='direct') is first
-    assert registry.is_enabled('old_pinger') and registry.is_enabled('pinger')
+    assert registry.isEnabled('old_pinger') and registry.isEnabled('pinger')
     assert registry.get('old_pinger') is first
     assert registry.enabled() == [first]
     assert Target().ping() == 'pong'
@@ -135,12 +135,12 @@ def test_extension_get_and_not_enabled(registry):
         registry.get('lonely')
     instance = registry.enable('lonely')
     assert Ext.get() is instance
-    assert registry.is_enabled('lonely')
+    assert registry.isEnabled('lonely')
 
 
 def test_extension_without_members_is_valid(registry):
     calls = []
-    Ext = makeExtension('hooks_only', on_enable=lambda self: calls.append(self.extension_id))
+    Ext = makeExtension('hooks_only', onEnable=lambda self: calls.append(self.extension_id))
     registry.register(Ext)
     registry.enable('hooks_only')
     assert calls == ['hooks_only']
@@ -179,7 +179,7 @@ def test_unknown_config_keys(registry):
     registry.register(makeExtension('strict', default_config={'port': 1913}))
     with pytest.raises(ConfigurationError, match='prot.*Known keys: port'):
         registry.enable('strict', config={'prot': 1})
-    assert not registry.is_enabled('strict')
+    assert not registry.isEnabled('strict')
 
     registry.register(makeExtension('loose', default_config={}, allow_unknown_config=True))
     assert registry.enable('loose', config={'anything': 1}).config['anything'] == 1
@@ -192,7 +192,7 @@ def test_validate_config(registry):
         config['port'] = int(config['port'])
         return config
 
-    registry.register(makeExtension('validated', default_config={'port': 1913}, validate_config=validate))
+    registry.register(makeExtension('validated', default_config={'port': 1913}, validateConfig=validate))
     with pytest.raises(ConfigurationError, match='port must be positive'):
         registry.enable('validated', config={'port': -1})
     assert registry.enable('validated', config={'port': 25565.0}).config['port'] == 25565
@@ -218,11 +218,11 @@ def test_namespace_mode(registry):
     def status(self):
         return f'{self.name} ok'
 
-    @property_extension(Target)
+    @propertyExtension(Target)
     def label(self):
         return f'<{self.name}>'
 
-    @class_extension(Target, 'bridge_client')
+    @classExtension(Target, 'bridge_client')
     class Client:
         def __init__(self, owner):
             self.owner = owner
@@ -275,7 +275,7 @@ def test_namespace_property_setter(registry):
     def setMotd(self, value):
         self.data['motd'] = value
 
-    motd = property_extension(Target, name='motd')(property(getMotd, setMotd))
+    motd = propertyExtension(Target, name='motd')(property(getMotd, setMotd))
     registry.register(makeExtension('motd', [motd], default_mode='namespace'))
     registry.enable('motd')
     obj = Target()
@@ -299,25 +299,25 @@ def test_conflict_with_builtin_method(registry):
     assert e.owner == __name__
     assert 'Base already defines' in str(e)
     assert Target('x').existing() == 'built-in'
-    assert not registry.is_enabled('rude')
+    assert not registry.isEnabled('rude')
 
 
 def test_conflict_with_real_calagoapi_class(registry):
-    @method(MinecraftServer)
-    def say(self, message):
-        return message
+    @method(Server)
+    def sendCommand(self, command):
+        return command
 
-    registry.register(makeExtension('loud', [say]))
+    registry.register(makeExtension('loud', [sendCommand]))
     with pytest.raises(ExtensionConflictError) as error:
         registry.enable('loud')
     assert error.value.owner == 'calagoapi'
-    assert error.value.target is MinecraftServer
+    assert error.value.target is Server
 
 
 def test_conflict_with_instance_attribute(registry):
     _, Target = makeTarget()
 
-    @property_extension(Target)
+    @propertyExtension(Target)
     def data(self):
         return 'shadowed'
 
@@ -474,25 +474,30 @@ def test_deprecated_alias_warns_at_the_caller(registry):
 
 
 def test_not_found_message(registry):
-    registry.register(makeExtension('hungerbridge_tools'))
+    registry.register(makeExtension('server_tools'))
     with pytest.raises(ExtensionNotFoundError) as error:
-        registry.enable('hungerbridge_tool')
+        registry.enable('server_tool')
     message = str(error.value)
-    assert "Extension 'hungerbridge_tool' is not installed" in message
-    assert "Did you mean: 'hungerbridge_tools'" in message
+    assert "Extension 'server_tool' is not installed" in message
+    assert "Did you mean: 'server_tools'" in message
     assert isinstance(error.value, LookupError)
 
-    with pytest.raises(ExtensionNotFoundError, match='pip install calagoapi-hungerbridge'):
+    with pytest.raises(ExtensionNotFoundError, match='pip install calagoapi-minecraft'):
+        registry.enable('minecraft')
+    # ids of 1.x first-party extensions point at their replacement
+    with pytest.raises(ExtensionNotFoundError, match="'hungerbridge' was replaced by 'minecraft'"):
         registry.enable('hungerbridge')
+    with pytest.raises(ExtensionNotFoundError, match="'version_changer' was replaced by 'minecraft'"):
+        registry.enable('version_changer')
 
 
 # dependencies
 def test_dependencies_are_enabled_first(registry):
     order = []
-    registry.register(makeExtension('base_dep', on_enable=lambda self: order.append('base_dep')))
-    registry.register(makeExtension('middle', dependencies=['base_dep'], on_enable=lambda self: order.append('middle')))
+    registry.register(makeExtension('base_dep', onEnable=lambda self: order.append('base_dep')))
+    registry.register(makeExtension('middle', dependencies=['base_dep'], onEnable=lambda self: order.append('middle')))
     registry.register(makeExtension('top', dependencies=['middle', Dependency('missing', optional=True)],
-                                    on_enable=lambda self: order.append('top')))
+                                    onEnable=lambda self: order.append('top')))
     registry.enable('top')
     assert order == ['base_dep', 'middle', 'top']
     assert registry.get('middle').enabled_by == 'top'
@@ -502,12 +507,12 @@ def test_dependencies_are_enabled_first(registry):
 
 
 def test_missing_dependency(registry):
-    registry.register(makeExtension('needs_vc', dependencies=['version_changer']))
+    registry.register(makeExtension('needs_vc', dependencies=['minecraft']))
     with pytest.raises(DependencyError) as error:
         registry.enable('needs_vc')
-    assert "'needs_vc' requires 'version_changer', which is not installed" in str(error.value)
-    assert 'pip install calagoapi-version-changer' in str(error.value)
-    assert not registry.is_enabled('needs_vc')
+    assert "'needs_vc' requires 'minecraft', which is not installed" in str(error.value)
+    assert 'pip install calagoapi-minecraft' in str(error.value)
+    assert not registry.isEnabled('needs_vc')
 
 
 def test_circular_dependencies(registry):
@@ -557,19 +562,19 @@ def test_on_enable_runs_after_install_and_failure_rolls_back(registry):
         seen.append(Target().hello())
         raise RuntimeError('database unreachable')
 
-    registry.register(makeExtension('fragile', [hello], on_enable=onEnable))
-    with pytest.raises(ExtensionError, match='on_enable.*database unreachable'):
+    registry.register(makeExtension('fragile', [hello], onEnable=onEnable))
+    with pytest.raises(ExtensionError, match='onEnable.*database unreachable'):
         registry.enable('fragile')
     assert seen == ['hello']
     assert not hasattr(Target, 'hello')
-    assert not registry.is_enabled('fragile')
+    assert not registry.isEnabled('fragile')
     assert registry.registrations() == []
 
 
 # migration handover
 def test_migrated_builtin_is_handed_over(registry):
     class Server:
-        @migrated_to('version_changer', 'calagoapi-version-changer')
+        @migratedTo('version_changer', 'calagoapi-version-changer')
         def installVersion(self, build):
             return f'legacy {build}'
 
@@ -609,16 +614,16 @@ def test_ownership_introspection(registry):
     def alpha(self):
         pass
 
-    @class_extension(Target)
+    @classExtension(Target)
     class Beta:
         def __init__(self, owner):
             pass
 
     registry.register(makeExtension('owned', [alpha, Beta]))
     registry.enable('owned')
-    assert registry.owner_of(Target, 'alpha') == 'owned'
-    assert registry.owner_of(Target, 'beta') == 'owned'
-    assert registry.owner_of(Target, 'existing') is None
+    assert registry.ownerOf(Target, 'alpha') == 'owned'
+    assert registry.ownerOf(Target, 'beta') == 'owned'
+    assert registry.ownerOf(Target, 'existing') is None
     kinds = {(r.target, r.name, r.kind) for r in registry.registrations(owner='owned')}
     assert kinds == {(Base, 'alpha', 'method'), (Target, 'beta', 'service')}
     assert registry.registrations(target=Target)[0].name == 'beta'
@@ -664,10 +669,10 @@ def test_invalid_members():
         method(lambda self: None)
     with pytest.raises(ExtensionDefinitionError, match='dunder'):
         method(Target, name='__init__')(lambda self: None)
-    with pytest.raises(ExtensionDefinitionError, match='@class_extension'):
+    with pytest.raises(ExtensionDefinitionError, match='@classExtension'):
         method(Target)(type('NotAFunction', (), {}))
     with pytest.raises(ExtensionDefinitionError):
-        class_extension(Target)(lambda self: None)
+        classExtension(Target)(lambda self: None)
 
 
 def test_members_list_must_contain_decorated_objects(registry):
@@ -680,7 +685,7 @@ def test_slotted_targets_cannot_get_services(registry):
     class Slotted:
         __slots__ = ('x',)
 
-    @class_extension(Slotted, 'svc')
+    @classExtension(Slotted, 'svc')
     class Service:
         def __init__(self, owner):
             pass
@@ -695,7 +700,7 @@ def test_concurrent_enable_and_service_creation(registry):
     _, Target = makeTarget()
     created = []
 
-    @class_extension(Target, 'slow')
+    @classExtension(Target, 'slow')
     class Slow:
         def __init__(self, owner):
             time.sleep(0.01)
@@ -732,7 +737,7 @@ def test_async_wrapper_supports_extension_members(registry):
         await asyncio.sleep(0)
         return f'async {self.name}'
 
-    @class_extension(Target, 'svc')
+    @classExtension(Target, 'svc')
     class Service:
         def __init__(self, owner):
             self.owner = owner
@@ -796,11 +801,11 @@ def site(tmp_path, monkeypatch):
             return f'widget {self.name}'
     '''))
     (package / 'extension.py').write_text(textwrap.dedent('''
-        from calagoapi.extensions import Extension, ExtensionMetadata, property_extension, Alias
+        from calagoapi.extensions import Extension, ExtensionMetadata, propertyExtension, Alias
         from fake_calagoapi_ext.targets import Widget
         from fake_calagoapi_ext.members import describe   # imported members are collected too
 
-        @property_extension(Widget)
+        @propertyExtension(Widget)
         def size(self):
             return len(self.name)
 
@@ -874,6 +879,6 @@ def test_global_api_is_exported():
     from calagoapi import extensions
     assert calagoapi.extensions is extensions
     assert isinstance(extensions.registry, ExtensionRegistry)
-    for name in ('enable', 'register', 'get_extension', 'is_enabled', 'available', 'enabled_extensions'):
+    for name in ('enable', 'register', 'getExtension', 'isEnabled', 'available', 'enabledExtensions'):
         assert callable(getattr(extensions, name))
-    assert extensions.is_enabled('definitely_not_installed') is False
+    assert extensions.isEnabled('definitely_not_installed') is False

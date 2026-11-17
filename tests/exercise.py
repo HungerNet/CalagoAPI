@@ -83,11 +83,11 @@ def overrides(fake, upload_path):
         ('Schedule', 'orderSteps'): {'steps': [UUID]},
         ('FileManager', 'chmod'): {'files': [{'file': 'a', 'mode': '755'}]},
         ('FileManager', 'uploadFile'): {'file': upload_path},
-        ('GenericServer', 'uploadFile'): {'file_data': upload_path},
-        ('MinecraftServer', 'uploadFile'): {'file_data': upload_path},
+        ('Server', 'uploadFile'): {'file_data': upload_path},
         ('NetworkManager', 'addFirewallRule'): {'action': 'allow'},
         ('Egg', 'createVariable'): {'rules': ['required']},
         ('ExtensionManager', 'install'): {'file': b'zip'},
+        ('ExtensionManager', 'call'): {'extension': 'dev.0x7d8.subdomainmanager', 'path': 'domains'},
         ('AssetManager', 'upload'): {'file': b'png'},
         ('Panel', 'get'): {'path': '/api/client/account'},
         ('Panel', 'post'): {'path': '/api/client/account/logout'},
@@ -131,12 +131,11 @@ def exerciseAll(panel, fake):
     custom = overrides(fake, upload_path)
 
     server = panel.servers.getServer(UUID)
-    minecraft = panel.servers.getMinecraftServer(UUID)
-    queue = [panel, panel.servers, panel.account, panel.auth, panel.admin, server, minecraft]
+    queue = [panel, panel.servers, panel.account, panel.auth, panel.admin, server]
     queue += [getattr(server, attr) for attr in ('files', 'backups', 'databases', 'schedules', 'users', 'network', 'tunnel')]
     queue += [value for attr, value in vars(panel.admin).items() if attr not in ('panel', 'api')]
     queue.append(DatabaseExplorer(panel, panel.api.databases.databasePath(UUID, UUID)))
-    seen = {type(server), type(minecraft)}
+    seen = {type(server)}
 
     calls_ok = 0
     errors = []

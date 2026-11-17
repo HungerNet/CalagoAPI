@@ -11,7 +11,7 @@ Covers:
     - clear errors for missing and circular dependencies
     - several extensions in one file need explicit `members` lists
 '''
-from calagoapi import Panel, MinecraftServer
+from calagoapi import Panel, Server
 from calagoapi.extensions import (
     CircularDependencyError,
     Dependency,
@@ -19,16 +19,16 @@ from calagoapi.extensions import (
     Extension,
     ExtensionMetadata,
     enable,
-    get_extension,
+    getExtension,
     method,
     register,
 )
 
 
 # --- a "library" extension other extensions build on -------------------------
-@method(MinecraftServer)
+@method(Server)
 def onlineCount(self) -> int:
-    '''Pretend player count (a real extension would ask the server).'''
+    '''Pretend player count (a real extension would ask the game server).'''
     return len(self.data.get('players', []))
 
 
@@ -42,11 +42,11 @@ class PlayersExtension(Extension):
 
 
 # --- an extension that needs it ----------------------------------------------
-@method(MinecraftServer)
+@method(Server)
 def isBusy(self) -> bool:
     # onlineCount comes from the `players` dependency; it is guaranteed to be
     # enabled before this extension, so calling it is safe.
-    return onlineCount(self) >= get_extension('busy_check').config['threshold']
+    return onlineCount(self) >= getExtension('busy_check').config['threshold']
 
 
 class BusyCheckExtension(Extension):
@@ -65,12 +65,12 @@ register(BusyCheckExtension)
 
 # Only busy_check is enabled explicitly; players is enabled automatically first.
 enable('busy_check')
-print('players enabled by:', get_extension('players').enabled_by)       # busy_check
-print('busy_check enabled by:', get_extension('busy_check').enabled_by)  # None (you did)
+print(f'players enabled by: {getExtension("players").enabled_by}')        # busy_check
+print(f'busy_check enabled by: {getExtension("busy_check").enabled_by}')  # None (you did)
 
 panel = Panel(url='https://panel.example.com', api_key='not-a-real-key')
-server = MinecraftServer(panel, 'a1', data={'uuid': 'a1', 'name': 'Survival', 'players': ['Steve', 'Alex']})
-print(server.onlineCount(), server.isBusy())     # 2 True
+server = Server(panel, 'a1', data={'uuid': 'a1', 'name': 'Survival', 'players': ['alice', 'bob']})
+print(f'{server.onlineCount()} online, busy: {server.isBusy()}')         # 2 online, busy: True
 
 
 # --- missing dependency -------------------------------------------------------
@@ -84,7 +84,7 @@ register(NeedsMissingExtension)
 try:
     enable('needs_missing')
 except DependencyError as e:
-    print('DependencyError:', e)
+    print(f'DependencyError: {e}')
 
 
 # --- circular dependencies ----------------------------------------------------
@@ -105,8 +105,8 @@ register(EggExtension)
 try:
     enable('chicken')
 except CircularDependencyError as e:
-    print('CircularDependencyError:', e)           # chicken -> egg -> chicken
-    print('cycle:', e.cycle)
+    print(f'CircularDependencyError: {e}')         # chicken -> egg -> chicken
+    print(f'cycle: {e.cycle}')
 
 
 # Common mistake: enabling a dependency yourself AFTER something already pulled it
