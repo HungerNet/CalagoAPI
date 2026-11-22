@@ -33,9 +33,9 @@ scripts only need new imports and a new `Panel(...)` call.
 | `listBackups()` returned the raw response | returns a list of `Backup` objects | |
 | `createSchedule(payload)` | `createSchedule(name, triggers, condition, steps)` | Calagopus schedules are trigger/step based, see [Schedules](schedules.md) |
 | `createDatabase(name, remote, host)` | `createDatabase(name, host=None)` | Calagopus has no remote pattern |
-| `MinecraftServer(..., bridge)` | `pip install calagoapi-minecraft`, then `panel.minecraft.getServer(server_id, bridge_url=..., bridge_token=...)` | Minecraft lives in its own package; HungerBridge is used through HungerBridgePy (`server.bridge`) |
-| `server.sendCommand()` via HungerBridge | `MinecraftServer.sendCommand(command, silent=False, showConsole=False)` returns the output | `Server.sendCommand()` (any game) goes through the panel and returns `None` |
-| `server.installVersion(...)` | `server.versions.install(build)` | the Version Changer is part of `calagoapi-minecraft` |
+| `MinecraftServer(..., bridge)` | `pip install calagoapi-minecraft`, then `panel.minecraft.getServer(server_id, bridge_url=..., bridge_token_id=..., bridge_token_secret=...)` | Minecraft lives in its own package; HungerBridge is used through HungerBridgePy (`server.bridge`) |
+| `server.sendCommand()` via HungerBridge | `MinecraftServer.sendCommand(command, show_console=False)` returns the output | `Server.sendCommand()` (any game) goes through the panel and returns `None` |
+| `server.installVersion(...)` | removed | the Minecraft Version Changer is not supported; change the server software in the panel |
 | `server.stream` (via HungerBridge) | `MinecraftServer.streamConsole(history=...)` / `onConsoleLine()`; `Server.streamConsole()` for other games | see [Live console](console.md) and [tutorial 12](tutorials/minecraft/12-commands-and-console.md) |
 | `panel.files.list(server_id, ...)` (internal API) | `server.files.listFiles(...)` | internal modules live in `panel.api` |
 

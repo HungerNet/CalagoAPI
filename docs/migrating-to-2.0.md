@@ -23,8 +23,7 @@ pip uninstall calagoapi-hungerbridge calagoapi-version-changer
 | `calagoapi.utils.*`, `calagoapi.schedules.*` namespaces | unchanged names, now the real subpackages |
 | `panel.servers.getMinecraftServer(id, name, server_domain, server_port)` | `panel.minecraft.getServer(id, name, address=...)` (calagoapi-minecraft) |
 | — | `panel.servers.getServer(id, server_class=Cls, **options)`, `getServers(server_class=...)` |
-| `panel.api.versions` | `calagoapi_minecraft.VersionChangerAPI` |
-| `panel.admin.extensions.getVersionChangerSettings()` etc. | `panel.minecraft.versionChanger.getSettings()` etc. |
+| `panel.api.versions`, `panel.admin.extensions.getVersionChangerSettings()` etc. | removed: the Minecraft Version Changer is no longer supported |
 | — | `panel.admin.extensions.call(extension, path, method='GET', json=None)` |
 | `AsyncPanel` wrapped only `calagoapi.*` objects | `calagoapi.aio.registerAsyncType(cls, wrapper)`; generator methods are async generators |
 
@@ -47,49 +46,46 @@ are unchanged.
 
 ## Minecraft
 
-| 1.x | 2.0 (`calagoapi_minecraft`) |
+Minecraft moved into `calagoapi-minecraft`. The tables below map 1.x straight to the
+current `calagoapi-minecraft` 2.0 API (HungerBridge 5, HungerBridgePy 2); the changes between
+calagoapi-minecraft 1.x and 2.0 are in [migrating-minecraft-2.0.md](migrating-minecraft-2.0.md).
+
+| 1.x | now (`calagoapi_minecraft`) |
 | --- | --- |
 | `from calagoapi import MinecraftServer` | `from calagoapi_minecraft import MinecraftServer` |
-| `MinecraftServer(panel, id, name, server_domain, server_port, data)` | `MinecraftServer(panel, id, name, data, *, address=None, bridge_url=None, bridge_token=None)` |
-| `server.sendCommand(cmd)` → panel, `None` | `server.sendCommand(cmd, *, silent=False, showConsole=False)` → HungerBridge, output text; panel: `server.sendPanelCommand(cmd)` |
-| `server.streamConsole(history=True)` → daemon | `server.streamConsole(history=0, timeout=None, *, reconnect=None, sanitize=True)` → HungerBridge (`history` = number of lines) |
+| `MinecraftServer(panel, id, name, server_domain, server_port, data)` | `MinecraftServer(panel, id, name, data, *, address=None, bridge_url=None, bridge_token_id=None, bridge_token_secret=None)` |
+| `server.sendCommand(cmd)` → panel, `None` | `server.sendCommand(cmd, *, show_console=False)` → HungerBridge, output text; panel: `server.sendPanelCommand(cmd)` |
+| `server.streamConsole(history=True)` → daemon | `server.streamConsole(history=0, timeout=None, *, reconnect=None)` → HungerBridge |
 | `server.onConsoleLine(cb)` → `Console` | `server.onConsoleLine(cb, history=0)` → `hungerbridge.Stream` (`.disconnect()`) |
-| `server.broadcast(msg)` (alias of `say`) | `server.broadcast(msg, prefix=None)` (tellraw to everyone) |
+| `server.broadcast(msg)` (alias of `say`) | `server.say(msg)`, or `server.bridge.broadcast(msg, prefix=None)` (tellraw to everyone) |
 | `getRAM()`, `getCPU()`, `stop()` | unchanged (panel) |
 
 ### calagoapi-version-changer
 
-| 1.x | 2.0 |
-| --- | --- |
-| `server.getInstalledVersion()` | `server.versions.getInstalled()` |
-| `server.installedVersion` | `server.versions.getInstalledBuild()` |
-| `server.isUpToDate()` | `server.versions.isUpToDate()` |
-| `server.getVersionTypes()` | `server.versions.getTypes()` |
-| `server.getVersions(type, ...)` / `getBuilds(type, version, ...)` | `server.versions.getVersions(...)` / `getBuilds(...)`; new `getLatestBuild(type, version)` |
-| `server.installVersion(build, ...)` | `server.versions.install(build, ..., backup=None)` |
-| `server.updateVersion()` | `server.versions.update()` |
-| config `auto_backup`, `backup_name`, `backup_timeout` | same keys on `enable('minecraft', config=...)` |
+Removed. The Minecraft Version Changer panel extension is no longer supported; change the
+server software with the panel or your egg, and install HungerBridge with
+`server.installBridge(minecraft_version=..., loader=...)`.
 
 ### calagoapi-hungerbridge
 
-| 1.x (`server.hungerbridge.`) | 2.0 (`server.`) |
+| 1.x (`server.hungerbridge.`) | now |
 | --- | --- |
-| `connect(url, token)` | `connectBridge(url, token, **options)` |
-| `client`, `getUrl()`, `close()` | `bridge` (a `hungerbridge.BridgeClient`), `getBridgeUrl()`, `closeBridge()` |
-| `isReachable()`, `authCheck()`, `meta()` | `isBridgeReachable()`, `getBridgeTokenInfo()`, `getBridgeInfo()` |
-| `ping()` | `bridge.getServerTime()` / `bridge.getPing()` |
-| `status()`, `info()`, `disk()` | removed: not HungerBridge protocol v1 endpoints (use `getBridgeInfo()`, `getDisk()`) |
-| `players()`, `playerCount()` | `getPlayers()`, `getPlayerCount()`, new `getMaxPlayers()` |
-| `run(cmd, silent, show_console)` | `sendCommand(cmd, silent=..., showConsole=...)` |
-| `log(message, level, thread)` | `writeLog(message, level='info', thread=None)` |
-| `stop()` | `bridge.stopServer()` (`server.stop()` is the panel's) |
-| `tps()` (dict), `mspt()` | `getTPS(mode)` (float), `getMSPT()`, `getPerformance()` |
-| `chunks()`, `entities()`, `time()`, `weather()` | `getLoadedChunks()`, `getLoadedEntities()`, `getWorldTime()`, `getWeather()` |
-| `uptime()`, `cpu()`, `memory()`, `gc()`, `threads()`, `network()` | `getJVMUptime()`, `getProcessorInfo()`, `getMemoryInfo()`, `getGarbageCollectorInfo()`, `getThreadInfo()`, `getNetworkInfo()`; new `getProcessInfo()` |
-| `findRelease(mc_version, loader, release)`, `install(...)` | `findBridgeRelease(minecraft_version, loader, release)`, `installBridge(...)` |
+| `connect(url, token)` | `server.connectBridge(url, token_id=..., token_secret=..., **options)` |
+| `client`, `getUrl()`, `close()` | `server.bridge` (a `hungerbridge.BridgeClient`), `server.getBridgeUrl()`, `server.closeBridge()` |
+| `isReachable()`, `authCheck()`, `meta()` | `server.isBridgeReachable()`, `server.bridge.getTokenInfo()`, `server.bridge.getServerMeta()` |
+| `ping()` | `server.bridge.getServerTime()` / `getPing()` |
+| `status()`, `info()`, `disk()` | removed (not HungerBridge endpoints; use `getServerMeta()`, the panel's `getDisk()`) |
+| `players()`, `playerCount()` | `server.bridge.getPlayers()`, `getPlayerCount()`, `getMaxPlayers()` |
+| `run(cmd, silent, show_console)` | `server.sendCommand(cmd, show_console=...)` |
+| `log(message, level, thread)` | `server.bridge.log(message, level='INFO', thread=None, logger=None, normalize=False)` |
+| `stop()` | `server.bridge.stopServer()` (`server.stop()` is the panel's) |
+| `tps()` (dict), `mspt()` | `server.bridge.getTPSStats()`, `getTPS(window)`, `getMSPT()` |
+| `chunks()`, `entities()`, `time()`, `weather()` | `server.bridge.getLoadedChunks()`, `getLoadedEntities()`, `getWorldTime()`, `getWorldWeather()` |
+| `uptime()`, `cpu()`, `memory()`, `gc()`, `threads()`, `network()` | `server.bridge.getUptime()`, `getCPUStats()`, `getMemoryStats()`, `getGCStats()`, `getThreadStats()`, `getNetworkStats()` |
+| `findRelease(mc_version, loader, release)`, `install(...)` | `hungerbridge.findRelease(minecraft_version=..., loader=...)`, `server.installBridge(minecraft_version, loader)` |
 | — | `createBridgeToken()`, `redeemBridgePickup()`, `waitForBridge()`, `setBridge()`, `hasBridge()` |
 | `HungerBridgeClient`, `HungerBridgeError` (CalagoAPI) | `hungerbridge.BridgeClient`, `hungerbridge.HungerBridgeError` (HungerBridgePy) |
-| config `url`, `port`, `token`, `timeout`, `verify`, `mc_version` | `bridge_url`, `bridge_port`, `bridge_token`, `bridge_timeout`, `bridge_max_retries`, `stream_reconnect`; versions are arguments of `installBridge()` |
+| config `url`, `port`, `token`, `timeout`, `verify`, `mc_version` | `bridge_url`, `bridge_port`, `bridge_token_id`, `bridge_token_secret`, `bridge_timeout`, `bridge_max_retries`, `stream_reconnect`; versions are arguments of `installBridge()` |
 
 ## Example
 
@@ -99,19 +95,18 @@ from calagoapi.extensions import enable
 enable('hungerbridge', config={'token': 'bot:9f2c...'})
 server = panel.servers.getMinecraftServer('abc123', server_domain='play.example.com')
 print(server.hungerbridge.run('list'), server.hungerbridge.tps()['tps'])
-server.installVersion(server.getBuilds('PAPER', '1.21.11')[0])
 
-# 2.0
+# now
 from calagoapi.extensions import enable
-enable('minecraft', config={'bridge_token': 'bot:9f2c...'})
+enable('minecraft', config={'bridge_token_id': 'bot', 'bridge_token_secret': '9f2c...'})
 server = panel.minecraft.getServer('abc123', address='play.example.com')
-print(server.sendCommand('list'), server.getTPS())
-server.versions.install(server.versions.getLatestBuild('PAPER', '1.21.11'))
+print(server.sendCommand('list'), server.bridge.getTPS())
+server.installBridge(minecraft_version='1.21.11', loader='paper')
 ```
 
 ## HungerBridge and HungerBridgePy
 
-- HungerBridgePy ≥ 1.0.dev2 is required (`streamLogs()`, `getTPSStats()`,
-  `getPlayerStats()`, `hungerbridge.releases`, typed stream errors).
-- HungerBridge release jars are now named `HungerBridge-<loader>-<minecraft>-<version>.jar`.
-  `installBridge()` still recognises the older `<minecraft>-<loader>-<version>.jar` names.
+- calagoapi-minecraft 2 requires HungerBridgePy ≥ 2.0.dev1 and HungerBridge 5 on the server
+  (protocol v2).
+- HungerBridge is released on [Modrinth](https://modrinth.com/project/hungerbridge) only;
+  `installBridge()` selects the jar by Modrinth's loader and game-version metadata.

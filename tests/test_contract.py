@@ -16,17 +16,9 @@ from scenarios import SCENARIOS
 
 # endpoints intentionally not called by the SDK
 NOT_WRAPPED = {
-    # undocumented extension "about" endpoints
+    # the Minecraft Version Changer panel extension: retired, intentionally unsupported
+    # (calagoapi-minecraft 2.0 removed its wrappers)
     ('GET', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/2038'),
-    ('GET', '/api/admin/extensions/dev.0x7d8.subdomainmanager/2038'),
-    # a browser redirect, the SDK only builds the URL (Auth.getOAuthLoginUrl)
-    ('GET', '/api/auth/oauth/redirect/{oauth_provider}'),
-}
-
-# game-specific panel extensions are wrapped by SDK extension packages, not by the
-# game-agnostic core; their own test suites check these endpoints against the spec
-# (calagoapi-minecraft: src/extensions/calagoapi-minecraft/tests/test_versions.py)
-WRAPPED_BY_EXTENSIONS = {
     ('GET', '/api/client/servers/{server}/minecraft/versions/installed'),
     ('GET', '/api/client/servers/{server}/minecraft/versions/types'),
     ('GET', '/api/client/servers/{server}/minecraft/versions/types/{type}'),
@@ -36,7 +28,14 @@ WRAPPED_BY_EXTENSIONS = {
     ('PUT', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/settings'),
     ('GET', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/statistics/total'),
     ('GET', '/api/admin/extensions/dev.0x7d8.minecraftversionchanger/default-order'),
+    # undocumented extension "about" endpoint
+    ('GET', '/api/admin/extensions/dev.0x7d8.subdomainmanager/2038'),
+    # a browser redirect, the SDK only builds the URL (Auth.getOAuthLoginUrl)
+    ('GET', '/api/auth/oauth/redirect/{oauth_provider}'),
 }
+
+# game-specific panel extensions wrapped by SDK extension packages (none at the moment)
+WRAPPED_BY_EXTENSIONS = set()
 
 
 def test_every_method_matches_the_spec(panel, fake):

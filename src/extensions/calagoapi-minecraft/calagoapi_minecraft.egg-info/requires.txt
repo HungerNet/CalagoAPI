@@ -1,0 +1,3 @@
+calagoapi>=2.0.dev1
+hungerbridge>=1.0.dev2
+requests

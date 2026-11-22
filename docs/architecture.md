@@ -17,7 +17,7 @@ HungerBridge repository             (jar)               the plugin/mod inside Mi
 | Owner | Owns | Must not contain |
 | --- | --- | --- |
 | `calagoapi` | Calagopus panel/daemon API, `Server`, managers, daemon console, `AsyncPanel`, extension system | game-specific code or docs; imports of `hungerbridge` or game extensions |
-| `calagoapi-minecraft` | `MinecraftServer`, `panel.minecraft`, Version Changer wrappers, `server.properties`, bridge install/token bootstrap | HungerBridge protocol details (signing, SSE parsing, release naming) |
+| `calagoapi-minecraft` | `MinecraftServer`, `panel.minecraft`, `server.properties`, bridge install/token bootstrap | HungerBridge protocol details (signing, streaming, release resolution) |
 | HungerBridgePy | HungerBridge protocol, typed errors, streams, pickups, release discovery | panel concepts |
 | HungerBridge | endpoints, auth, policies, SSE, release artifact names | client conveniences |
 
@@ -96,8 +96,7 @@ extensions/
 ```
 calagoapi_minecraft/
 ├── server.py      MinecraftServer(Server): panel channel (inherited) + bridge channel (server.bridge)
-├── bridge.py      BridgeClient creation, console pickup parsing, loader/version detection
-├── versions.py    VersionManager (server.versions), VersionChangerAdmin, VersionChangerAPI
+├── bridge.py      BridgeClient creation, console pickup parsing
 ├── properties.py  server.properties text handling
 ├── manager.py     MinecraftManager: @classExtension(Panel, 'minecraft')
 ├── extension.py   MinecraftExtension (id 'minecraft'); config.py: defaults, validation, settings()
@@ -107,11 +106,12 @@ calagoapi_minecraft/
 
 - `server.bridge` is a `hungerbridge.BridgeClient`; no HungerBridge protocol code lives
   in CalagoAPI. Missing client capabilities are added to HungerBridgePy (for example
-  `streamLogs()`, `getTPSStats()`, `hungerbridge.releases`).
+  `streamLogs()`, `findRelease()`). MinecraftServer adds no aliases for
+  HungerBridgePy methods; bridge features are used as `server.bridge.<method>`.
 - Overrides keep base calls working: `sendCommand(command)` and
-  `streamConsole(history=True)` are valid on both `Server` and `MinecraftServer`.
+  `streamConsole()` are valid on both `Server` and `MinecraftServer`.
 - `getRAM()`, `getCPU()` and `stop()` are inherited unchanged; bridge metrics are
-  separate methods (`getMemoryInfo()`, `getProcessorInfo()`, ...).
+  HungerBridgePy's (`server.bridge.getMemoryStats()`, `getCPUStats()`, ...).
 
 ## The generated client
 

@@ -1,0 +1,2 @@
+[calagoapi]
+minecraft = calagoapi_minecraft.extension:MinecraftExtension

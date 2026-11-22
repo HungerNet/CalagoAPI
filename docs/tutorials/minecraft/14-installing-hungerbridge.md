@@ -1,100 +1,85 @@
-# 14 · Versions and installs
+# 14 · Installing HungerBridge
 
 This builds on [11–13](../README.md#track-3-minecraft) and on the backup workflow of
 [04](../basics/04-files-and-backups.md).
 
 ## What you will build
 
-A safe upgrade: warn the players, back up, install the newest build of a Minecraft
-version, reinstall the matching HungerBridge jar, restart, and wait until the bridge
-answers again.
+An install-and-upgrade script: back up the server, put the right HungerBridge jar into
+`/plugins` or `/mods`, restart, and wait until the bridge answers again.
+Code: [examples/minecraft/05_install_bridge.py](../../../examples/minecraft/05_install_bridge.py).
 
-## Step 1: the Version Changer
-
-The Calagopus **Minecraft Version Changer** panel extension installs any server build
-(Paper, Purpur, Fabric, Forge, Vanilla, ...). `server.versions` wraps it:
+## Step 1: say what the server runs
 
 ```python
-server.versions.isAvailable()                       # is the panel extension installed?
-server.versions.getInstalledBuild()                 # {'type': 'PAPER', 'version_id': '1.21.11', ...}
-server.versions.isUpToDate()                        # True / False / None (unknown)
-server.versions.getTypes()                          # PAPER, PURPUR, FABRIC, ...
-server.versions.getVersions('PAPER', page=1, per_page=10)
-build = server.versions.getLatestBuild('PAPER', '1.21.11')
-server.versions.install(build, backup=True)         # back up first, install only if it succeeded
-server.versions.update()                            # newest build of the installed version
+release = server.installBridge(minecraft_version='1.21.11', loader='paper')
 ```
 
-`backup=None` (the default) uses the `auto_backup` config, so
-`enable('minecraft', config={'auto_backup': True})` protects every install in the process.
-Admins configure the panel extension with `panel.minecraft.versionChanger.getSettings()`
-and `updateSettings(...)`.
+Both arguments are required and nothing is guessed. Use the loader as Modrinth names it:
 
-## Step 2: the matching HungerBridge jar
+| Server software | `loader` | Jar goes to |
+| --- | --- | --- |
+| Paper | `paper` | `/plugins` |
+| Purpur | `purpur` | `/plugins` |
+| Folia | `folia` | `/plugins` |
+| Fabric | `fabric` | `/mods` |
 
-HungerBridge ships one jar per Minecraft version and loader. After a version change the
-old jar may not load:
+A loader or Minecraft version HungerBridge is not published for raises `ValueError` listing
+what is available, so a typo fails before anything is downloaded.
 
-```python
-asset = server.installBridge()        # loader + version detected, old HungerBridge jars removed
-print(f'{asset.name} -> {asset.directory}')
-```
+## Step 2: what installBridge() does
 
-Detection order: arguments → the Version Changer's installed build → a running bridge
-(`/server/meta`) → the egg name and the `MINECRAFT_VERSION` startup variable. Pass
-`installBridge('1.21.11', 'paper')` to skip detection, `release='v4-alpha.94'` to pin a
-release.
+1. HungerBridgePy's `findRelease()` asks [Modrinth](https://modrinth.com/project/hungerbridge),
+   the only place HungerBridge is released, for versions whose **metadata** lists that loader
+   and Minecraft version. File names are never parsed.
+2. Only HungerBridge 5.x releases are taken (they speak the protocol your HungerBridgePy
+   speaks); the newest wins. Pin one with `version='5-alpha.1'`.
+3. Other `HungerBridge*.jar` files in the target directory are deleted (`replace=False`
+   keeps them), and the panel pulls the jar from Modrinth's CDN (`files.pullFile`).
+4. It returns a `hungerbridge.BridgeRelease`: `version_number`, `version_type`, `filename`,
+   `url`, `size`, `sha512`, `directory`, `loaders`, `game_versions`.
+
+The new jar is loaded on the next start, so restart afterwards.
 
 ## Complete program
 
 ```python
-import time
-
 from calagoapi import Panel
 from calagoapi.extensions import enable
 
-TYPE, VERSION = 'PAPER', '1.21.11'
+MINECRAFT_VERSION = '1.21.11'
+LOADER = 'paper'
 
-enable('minecraft', config={'bridge_token': 'calagoapi:9f2c...', 'auto_backup': True})
+enable('minecraft', config={'bridge_token_id': 'calagoapi', 'bridge_token_secret': '9f2c...'})
 
 with Panel(url='https://panel.example.com', api_key='c7sp_...') as panel:
     server = panel.minecraft.getServer('abc123', bridge_url='http://10.0.0.5:1913')
 
-    build = server.versions.getLatestBuild(TYPE, VERSION)
-    installed = server.versions.getInstalledBuild() or {}
-    if installed.get('uuid') == build['uuid']:
-        raise SystemExit(f'{server.name} already runs {build["name"]}')
+    backup = server.backups.createBackup(name='Before HungerBridge update')
+    backup.waitUntilComplete(timeout=3600)
+    if not backup.isSuccessful():
+        raise SystemExit('backup failed, nothing changed')
 
-    if server.isBridgeReachable():
-        server.broadcast('Updating in 60 seconds, the server will restart', prefix='[Update] ')
-        time.sleep(60)
-        server.saveAll()
+    release = server.installBridge(minecraft_version=MINECRAFT_VERSION, loader=LOADER)
+    print(f'installed {release.filename} (HungerBridge {release.version_number})')
 
-    server.stop()                                   # the panel's stop, not HungerBridge's
-    server.waitForOffline(timeout=180)
-    server.versions.install(build)                  # auto_backup: backup first
-    asset = server.installBridge(VERSION, TYPE)     # PAPER -> the paper jar
-    server.start()
-
-    if server.waitForBridge(timeout=300):
-        print(f'{server.name}: {build["name"]} with {asset.name}, TPS {server.getTPS()}')
-    else:
-        print(f'{server.name} started but HungerBridge does not answer; check the console')
+    server.restart()
+    if server.waitForBridge(timeout=180):
+        print(f'bridge is back: {server.bridge.getBridgeVersion()}')
 ```
 
 ## How it works
 
-- The Version Changer calls go through the **panel** (`/api/client/servers/{id}/minecraft/versions/...`)
-  with CalagoAPI's client: same authentication, retries and errors as everything else.
-  Without the panel extension they raise `NotFoundError`.
-- `installBridge()` asks HungerBridgePy which jar to use (`hungerbridge.releases.find_release`).
-  The jar naming (`HungerBridge-<loader>-<mc>-<version>.jar`) is a contract between
-  HungerBridge's build and HungerBridgePy, so it lives there, not in CalagoAPI. The
-  download itself is a panel file pull (`server.files.pullFile`) into `/plugins` or `/mods`.
-- `waitForBridge()` polls an authenticated ping, so it also proves the token still works
-  after the reinstall.
-- `stop()` is always the panel power action. HungerBridge's own stop endpoint is
-  available as `server.bridge.stopServer()` if you ever want it explicitly.
+- Release resolution lives in HungerBridgePy (`hungerbridge.findRelease`), so every
+  HungerBridge client agrees on which jar is right; CalagoAPI only adds the panel file
+  operations.
+- When the Minecraft version itself changes (a new Paper build, a new major version), change
+  the server software first with the panel or your egg, then run `installBridge()` with the
+  new version.
+- `waitForBridge()` polls an authenticated `/ping` until it answers or the timeout passes.
+  A newly installed server needs a token first: tutorial [11](11-minecraft-setup.md#step-3-a-token).
+- `findRelease()` raises `HungerBridgeNotFound` when no compatible release exists for that
+  loader and version, and `HungerBridgeConnectionError` when Modrinth cannot be reached.
 
 ## Next
 

@@ -62,8 +62,8 @@ Key conventions:
 | Game support | core is game-agnostic; `MinecraftServer(Server)` lives in `calagoapi-minecraft` (2.0) | enforced by `tests/test_architecture.py` |
 | HungerBridge | used only through HungerBridgePy (`server.bridge`), never re-implemented | HungerBridgePy is the source of truth for the protocol |
 | `sendCommand()` / `streamConsole()` on Minecraft | through HungerBridge (output, SSE log stream); no silent fallback to the panel | `sendPanelCommand()` / `server.console` for the panel route |
-| `getRAM()`, `getCPU()`, `stop()` | stay the panel's; JVM data is additive (`getMemoryInfo()`, ...) | matches what the panel shows and works without the plugin |
-| Version changer | `server.versions` in `calagoapi-minecraft` (2.0); 1.x shims removed | one package per game |
+| `getRAM()`, `getCPU()`, `stop()` | stay the panel's; JVM data is HungerBridgePy's (`server.bridge.getMemoryStats()`, ...) | matches what the panel shows and works without the plugin |
+| Version changer | removed in calagoapi-minecraft 2.0 (the panel extension is retired) | HungerBridge installs come from Modrinth (`installBridge()`) |
 | Extension system | class patching, entry point group `calagoapi`, explicit `enable()` | see `PLAN.md` for the full design and alternatives |
 | Licence | **GPL-3.0** (chosen by the user) | the `LICENSE` file is the legal text |
 | Async design | wrapper running the sync client in worker threads; native asyncio only for the console | one source of truth; new methods are async automatically |

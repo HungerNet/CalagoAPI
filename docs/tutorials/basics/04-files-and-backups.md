@@ -77,7 +77,7 @@ with Panel(url='https://panel.example.com', api_key='c7sp_...') as panel:
   issues; CalagoAPI handles that for you.
 - Game extensions build on the same managers. `calagoapi-minecraft`'s
   `setProperties()` is exactly this read-edit-write pattern on `server.properties`, and
-  its Version Changer can take the backup for you ([14](../minecraft/14-versions-and-installs.md)).
+  the HungerBridge install script of [14](../minecraft/14-installing-hungerbridge.md) takes a backup first.
 
 ## Next
 

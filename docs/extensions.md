@@ -8,14 +8,14 @@ step, follow [tutorials 06–10](tutorials/README.md#track-2-extending-calagoapi
 ```python
 from calagoapi.extensions import enable
 
-enable('minecraft', config={'bridge_token': 'bot:9f2c...'})   # pip install calagoapi-minecraft
+enable('minecraft', config={'bridge_token_id': 'bot', 'bridge_token_secret': '9f2c...'})   # pip install calagoapi-minecraft
 server = panel.minecraft.getServer('abc123')                  # added by the extension
 ```
 
 > **SDK extensions vs panel extensions.** `calagoapi.extensions` is about Python
 > packages that extend this SDK. `panel.admin.extensions` manages Calagopus *panel*
-> extensions installed on your panel. Some SDK extensions wrap a panel extension:
-> `calagoapi-minecraft` wraps the Minecraft Version Changer.
+> extensions installed on your panel. An SDK extension may wrap a panel extension
+> (none of the first-party ones currently does).
 
 ## Contents
 

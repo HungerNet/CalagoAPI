@@ -43,7 +43,7 @@ How separately installed packages add features, and how to write one.
 ## Track 3: Minecraft
 
 Requires `pip install calagoapi-minecraft` and, for most of it, the
-[HungerBridge](https://github.com/HungerNet/HungerBridge) plugin/mod on the server.
+[HungerBridge](https://modrinth.com/project/hungerbridge) plugin/mod on the server.
 The code of these tutorials is in [examples/minecraft/](../../examples/minecraft/README.md)
 and is tested against a fake panel and a fake HungerBridge.
 
@@ -51,9 +51,10 @@ and is tested against a fake panel and a fake HungerBridge.
 | --- | --- | --- | --- |
 | 11 | [Minecraft setup](minecraft/11-minecraft-setup.md) | a connection check that creates its own bridge token | `MinecraftServer`, the two channels, HungerBridgePy |
 | 12 | [Commands and console](minecraft/12-commands-and-console.md) | a command runner and a join watcher | `sendCommand()` output, `streamConsole()`, `sendPanelCommand()` |
-| 13 | [Monitoring](minecraft/13-monitoring.md) | a health report | `getRAM()` vs `getMemoryInfo()`, TPS/MSPT, `getPerformance()` |
-| 14 | [Versions and installs](minecraft/14-versions-and-installs.md) | a safe upgrade script | `server.versions`, auto backup, `installBridge()`, `waitForBridge()` |
+| 13 | [Monitoring](minecraft/13-monitoring.md) | a health report | `getRAM()` vs `server.bridge.getMemoryStats()`, TPS/MSPT |
+| 14 | [Installing HungerBridge](minecraft/14-installing-hungerbridge.md) | an install-and-upgrade script | `installBridge(minecraft_version, loader)`, Modrinth releases, `waitForBridge()` |
 | 15 | [Capstone: community bot](minecraft/15-community-bot.md) | an asyncio bot | every track together |
+| 16 | [Logging from your bot](minecraft/16-logging-from-your-bot.md) | a maintenance bot with its own log lines | `log(level, thread, logger, normalize)`, `LogEvent`s |
 
 ## Conventions used in the tutorials
 

@@ -8,25 +8,17 @@ connectBridge()) always win.
 from types import MappingProxyType
 
 from calagoapi.extensions import ConfigurationError, ExtensionNotEnabledError
-from hungerbridge.auth import Credentials
+from hungerbridge import Credentials
 
 
 DEFAULT_CONFIG = {
-    # HungerBridge connection
-    'bridge_url': None,           # None: the server's address with bridge_port
+    'bridge_url': None,            # None: the server's address with bridge_port
     'bridge_port': 1913,
-    'bridge_token': None,         # 'tokenId:secret'
-    'bridge_timeout': None,       # seconds or (connect, read); None: HungerBridgePy's default (5, 30)
-    'bridge_max_retries': 2,      # retries after HTTP 429, inside HungerBridgePy
-    'stream_reconnect': True,     # default for streamConsole() and onConsoleLine()
-    # Version Changer
-    'auto_backup': False,         # back up before server.versions.install()
-    'backup_name': 'Before version change',
-    'backup_timeout': 3600,
-    # installBridge()
-    'release': 'latest',
-    'repository': 'HungerNet/HungerBridge',
-    'github_api': 'https://api.github.com',
+    'bridge_token_id': None,       # token for every server; per server: connectBridge()
+    'bridge_token_secret': None,   # its 64 hex character secret (masked in diagnostics)
+    'bridge_timeout': None,        # seconds or (connect, read); None: HungerBridgePy's default (5, 30)
+    'bridge_max_retries': 2,       # retries after HTTP 429, inside HungerBridgePy
+    'stream_reconnect': True,      # default for streamConsole() and onConsoleLine()
 }
 
 
@@ -47,32 +39,33 @@ def settings():
         return MappingProxyType(dict(DEFAULT_CONFIG))
 
 
-def checkToken(token, where: str = 'bridge_token'):
-    '''Raises ConfigurationError unless token is None or "tokenId:secret" with a hex secret.'''
-    if token is None:
-        return
-    credentials = Credentials.parse(token) if isinstance(token, str) else None
-    if credentials is None:
-        raise ConfigurationError(f'minecraft: {where} must look like "tokenId:secret", got a {type(token).__name__}')
+def credentials(token_id, token_secret, where: str = 'bridge_token_id/bridge_token_secret'):
+    '''
+    Returns hungerbridge.Credentials for the pair, or None when both are None.
+
+    Raises:
+        ConfigurationError: only one of them is given, or HungerBridgePy rejects them
+            (empty id, secret that is not 64 hex characters). The secret is never echoed.
+    '''
+    if token_id is None and token_secret is None:
+        return None
+    if token_id is None or token_secret is None:
+        raise ConfigurationError(f'minecraft: {where}: give both the token id and the token secret')
     try:
-        bytes.fromhex(credentials.secret)
-    except ValueError:
-        raise ConfigurationError(f'minecraft: the secret in {where} must be the 64 hex characters from the pickup') from None
+        return Credentials(token_id=token_id, token_secret=token_secret)
+    except ValueError as error:
+        raise ConfigurationError(f'minecraft: {where}: {error}') from None
 
 
 def validate(config: dict) -> dict:
-    checkToken(config['bridge_token'])
+    credentials(config['bridge_token_id'], config['bridge_token_secret'])
     port = config['bridge_port']
     if isinstance(port, bool) or not isinstance(port, int) or not 0 < port < 65536:
         raise ConfigurationError(f'minecraft: bridge_port must be 1-65535, got {port!r}')
     if config['bridge_url'] is not None and not str(config['bridge_url']).startswith(('http://', 'https://')):
         raise ConfigurationError(f'minecraft: bridge_url must start with http:// or https://, got {config["bridge_url"]!r}')
-    for key in ('auto_backup', 'stream_reconnect'):
-        if not isinstance(config[key], bool):
-            raise ConfigurationError(f'minecraft: {key} must be True or False')
-    timeout = config['backup_timeout']
-    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or timeout <= 0:
-        raise ConfigurationError('minecraft: backup_timeout must be a positive number of seconds')
+    if not isinstance(config['stream_reconnect'], bool):
+        raise ConfigurationError('minecraft: stream_reconnect must be True or False')
     retries = config['bridge_max_retries']
     if isinstance(retries, bool) or not isinstance(retries, int) or retries < 0:
         raise ConfigurationError('minecraft: bridge_max_retries must be 0 or more')

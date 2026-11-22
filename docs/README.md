@@ -8,7 +8,7 @@ Start here if you are new: [tutorials/](tutorials/README.md), 15 tutorials in th
 | --- | --- |
 | 1. The core SDK (any game) | [01 First script](tutorials/basics/01-first-script.md) · [02 Server control](tutorials/basics/02-server-control.md) · [03 Live console](tutorials/basics/03-live-console.md) · [04 Files and backups](tutorials/basics/04-files-and-backups.md) · [05 Going async](tutorials/basics/05-going-async.md) |
 | 2. Extending CalagoAPI | [06 Using extensions](tutorials/extensions/06-using-extensions.md) · [07 Your first extension](tutorials/extensions/07-your-first-extension.md) · [08 Services and namespaces](tutorials/extensions/08-services-and-namespaces.md) · [09 Configuration and dependencies](tutorials/extensions/09-configuration-and-dependencies.md) · [10 Packaging and publishing](tutorials/extensions/10-packaging-and-publishing.md) |
-| 3. Minecraft (calagoapi-minecraft) | [11 Setup](tutorials/minecraft/11-minecraft-setup.md) · [12 Commands and console](tutorials/minecraft/12-commands-and-console.md) · [13 Monitoring](tutorials/minecraft/13-monitoring.md) · [14 Versions and installs](tutorials/minecraft/14-versions-and-installs.md) · [15 Community bot](tutorials/minecraft/15-community-bot.md) |
+| 3. Minecraft (calagoapi-minecraft) | [11 Setup](tutorials/minecraft/11-minecraft-setup.md) · [12 Commands and console](tutorials/minecraft/12-commands-and-console.md) · [13 Monitoring](tutorials/minecraft/13-monitoring.md) · [14 Installing HungerBridge](tutorials/minecraft/14-installing-hungerbridge.md) · [15 Community bot](tutorials/minecraft/15-community-bot.md) · [16 Logging from your bot](tutorials/minecraft/16-logging-from-your-bot.md) |
 
 ## Reference guides (core SDK)
 
@@ -29,9 +29,11 @@ Start here if you are new: [tutorials/](tutorials/README.md), 15 tutorials in th
 ## Extension packages
 
 - [calagoapi-minecraft](../src/extensions/calagoapi-minecraft/README.md): `MinecraftServer`,
-  HungerBridge (via HungerBridgePy), the Version Changer
+  HungerBridge (via HungerBridgePy), bridge installs from Modrinth
 
 ## Migration and design
+
+- [Migrating calagoapi-minecraft 1.x to 2.0](migrating-minecraft-2.0.md)
 
 - [Migrating to 2.0](migrating-to-2.0.md): every rename and move of the 2.0 rewrite
 - [Migrating from HungerLib](migrating-from-hungerlib.md)

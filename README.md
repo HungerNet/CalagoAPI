@@ -29,7 +29,7 @@ CalagoAPI: the same method names (`getStatus()`, `isOnline()`, `createBackup()`,
 
 ```bash
 pip install calagoapi                       # the core SDK: requests + websockets
-pip install calagoapi-minecraft             # optional: Minecraft (HungerBridge, Version Changer)
+pip install calagoapi-minecraft             # optional: Minecraft (HungerBridge)
 ```
 
 Python 3.9+.
@@ -60,7 +60,7 @@ entirely in `calagoapi-minecraft`.
 | **Admin** | Users, servers (create, deploy, transfer, suspend, limits), nodes, allocations, locations, nests and eggs, egg repositories, mounts, devices, roles, announcements, OAuth providers, database hosts, backup configurations and policies, settings, email templates, panel extensions, system health and updates |
 | **Async** | `AsyncPanel`: the whole API with `await`, plus a native asyncio live console |
 | **Extensions** | Add methods, properties and services to CalagoAPI from separate packages: `enable('...')` ([reference](docs/extensions.md)) |
-| **Minecraft** *(calagoapi-minecraft)* | Commands with output and console streaming through HungerBridge, players, TPS/MSPT, JVM metrics, Version Changer, `server.properties`, bridge install and token setup |
+| **Minecraft** *(calagoapi-minecraft)* | Commands with output and console streaming through HungerBridge, players, TPS/MSPT, JVM metrics (`server.bridge`), `server.properties`, bridge install from Modrinth and token setup |
 
 ## Quick tour
 
@@ -137,14 +137,14 @@ server.schedules.createSchedule(
 ```python
 from calagoapi.extensions import enable
 
-enable('minecraft', config={'bridge_token': 'calagoapi:9f2c...'})
+enable('minecraft', config={'bridge_token_id': 'calagoapi', 'bridge_token_secret': '9f2c...'})
 server = panel.minecraft.getServer('abc123', bridge_url='http://10.0.0.5:1913')
 
 print(server.sendCommand('list'))              # output, through HungerBridge
 for line in server.streamConsole(history=10, timeout=30):
     print(line)
-print(f'TPS {server.getTPS("1m")}, heap {server.getMemoryInfo()["used"]:.0f} MiB, container {server.getRAM()} MiB')
-server.versions.install(server.versions.getLatestBuild('PAPER', '1.21.11'), backup=True)
+print(f'TPS {server.bridge.getTPS("1m")}, heap {server.bridge.getMemoryStats()["heap_used"]:.0f} MiB, container {server.getRAM()} MiB')
+server.installBridge(minecraft_version='1.21.11', loader='paper')   # HungerBridge from Modrinth
 ```
 
 See the [Minecraft tutorials](docs/tutorials/README.md#track-3-minecraft).

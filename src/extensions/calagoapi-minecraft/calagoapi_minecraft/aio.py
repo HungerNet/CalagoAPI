@@ -3,7 +3,7 @@ AsyncPanel support: registers how calagoapi-minecraft objects are wrapped.
 
     async with AsyncPanel(url=..., api_key=...) as panel:
         server = await panel.minecraft.getServer('abc123')
-        print(await server.getTPS())
+        print(await server.bridge.getTPS())
         async for line in server.streamConsole(history=10):
             print(line)
 
@@ -18,7 +18,6 @@ from hungerbridge import BridgeClient, Stream
 from calagoapi.aio import AsyncServer, AsyncWrapper, iterateInThread, registerAsyncType, wrap
 
 from calagoapi_minecraft.server import MinecraftServer
-from calagoapi_minecraft.versions import VersionChangerAdmin, VersionManager
 
 
 class AsyncMinecraftServer(AsyncServer):
@@ -26,8 +25,7 @@ class AsyncMinecraftServer(AsyncServer):
     The async version of MinecraftServer. Every method is awaitable;
     streamConsole() is an async generator over HungerBridge's log stream.
     '''
-    async def streamConsole(self, history: int = 0, timeout: float = None, *, reconnect: bool = None,
-                            sanitize: bool = True):
+    async def streamConsole(self, history: int = 0, timeout: float = None, *, reconnect: bool = None):
         '''
         Yields HungerBridge console lines (see MinecraftServer.streamConsole()).
 
@@ -35,12 +33,11 @@ class AsyncMinecraftServer(AsyncServer):
             async for line in server.streamConsole(history=20):
                 print(line)
         '''
-        lines = await asyncio.to_thread(self.target.streamConsole, history, timeout, reconnect=reconnect,
-                                        sanitize=sanitize)
+        lines = await asyncio.to_thread(self.target.streamConsole, history, timeout, reconnect=reconnect)
         async for line in iterateInThread(lines):
             yield line
 
-    async def onConsoleLine(self, callback, history: int = 0, *, reconnect: bool = None, sanitize: bool = True):
+    async def onConsoleLine(self, callback, history: int = 0, *, reconnect: bool = None):
         '''
         Calls `callback(line)` for every console line; the callback may be a coroutine
         function, it then runs on this event loop. Returns the stream (`await stream.disconnect()`).
@@ -52,13 +49,10 @@ class AsyncMinecraftServer(AsyncServer):
             if inspect.isawaitable(result):
                 asyncio.run_coroutine_threadsafe(result, loop)
 
-        stream = await asyncio.to_thread(self.target.onConsoleLine, deliver, history, reconnect=reconnect,
-                                         sanitize=sanitize)
+        stream = await asyncio.to_thread(self.target.onConsoleLine, deliver, history, reconnect=reconnect)
         return wrap(stream)
 
 
 registerAsyncType(MinecraftServer, AsyncMinecraftServer)
-registerAsyncType(VersionManager, AsyncWrapper)
-registerAsyncType(VersionChangerAdmin, AsyncWrapper)
 registerAsyncType(BridgeClient, AsyncWrapper)
 registerAsyncType(Stream, AsyncWrapper)

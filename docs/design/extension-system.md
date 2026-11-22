@@ -14,6 +14,9 @@
 >   tutorials 06–10.
 > - `AsyncWrapper` resolves wrappers through `calagoapi.aio.registerAsyncType()` and turns
 >   generator members into async generators.
+> - calagoapi-minecraft 2.0 removed the Minecraft Version Changer integration entirely (the
+>   panel extension is retired). The Version Changer sections below are kept only as the
+>   record of how the extension mechanism was designed; none of those APIs exist any more.
 
 Status: implemented in 1.0-dev.2. This file records the design and the reasons behind it.
 

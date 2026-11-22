@@ -1,16 +1,13 @@
 run: true
-version: '1.0-dev.2'
+version: '2.0-dev.1'
 description: |
-  Dev 1:
-  - First release. Replaces calagoapi-hungerbridge and calagoapi-version-changer (CalagoAPI 1.x).
-  - MinecraftServer(Server): moved out of the calagoapi core package
-  - sendCommand() returns the command's output and streamConsole() streams HungerBridge's log,
-    both built on HungerBridgePy; sendPanelCommand() for the panel route
-  - Players, TPS/MSPT, world data and JVM information (getMemoryInfo, getProcessorInfo,
-    getThreadInfo, getGarbageCollectorInfo, getProcessInfo, getNetworkInfo); getRAM/getCPU/stop
-    stay the panel's
-  - createBridgeToken(), installBridge(), waitForBridge()
-  - server.versions (Version Changer) and panel.minecraft.versionChanger (admin)
-  - panel.minecraft after enable('minecraft'); AsyncPanel support
-  Dev 2:
-  - Bump version
+  2.0-dev.1 (breaking; needs HungerBridge 5 and HungerBridgePy 2, protocol v2):
+  - Version Changer support removed (server.versions, panel.minecraft.versionChanger)
+  - bridge_token_id + bridge_token_secret replace the combined bridge_token
+  - installBridge(minecraft_version, loader): explicit, resolved on Modrinth
+  - sendCommand(command, show_console=False): suppression now works; silent removed
+  - streamConsole()/onConsoleLine() yield HungerBridge's canonical plain lines; sanitize removed
+  - methods that only renamed HungerBridgePy calls removed: use server.bridge
+  Migration: docs/migrating-minecraft-2.0.md
+  1.0-dev.1 / 1.0-dev.2:
+  - First release (replaced calagoapi-hungerbridge and calagoapi-version-changer)

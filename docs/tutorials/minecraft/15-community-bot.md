@@ -8,7 +8,7 @@ An asyncio bot that runs next to your server for as long as you like:
 
 - it greets every player who joins (console stream → command);
 - it posts TPS every few seconds (bridge metrics);
-- on demand it reports panel resources (panel channel) and can restart safely.
+- on demand it reports panel resources (panel channel).
 
 Code: [examples/minecraft/04_async_welcome_bot.py](../../../examples/minecraft/04_async_welcome_bot.py).
 The same structure plugs into a Discord bot: call the functions from your command handlers.
@@ -19,11 +19,11 @@ The same structure plugs into a Discord bot: call the functions from your comman
 from calagoapi import AsyncPanel
 from calagoapi.extensions import enable
 
-enable('minecraft', config={'bridge_token': 'calagoapi:9f2c...'})
+enable('minecraft', config={'bridge_token_id': 'calagoapi', 'bridge_token_secret': '9f2c...'})
 
 async with AsyncPanel(url='https://panel.example.com', api_key='c7sp_...') as panel:
     server = await panel.minecraft.getServer('abc123', bridge_url='http://10.0.0.5:1913')
-    print(await server.getTPS())
+    print(await server.bridge.getTPS())
     async for line in server.streamConsole(timeout=60):
         print(line)
 ```
@@ -48,7 +48,7 @@ from calagoapi.extensions import enable
 
 JOIN = re.compile(r'\]: (\w+) joined the game')
 
-enable('minecraft', config={'bridge_token': 'calagoapi:9f2c...'})
+enable('minecraft', config={'bridge_token_id': 'calagoapi', 'bridge_token_secret': '9f2c...'})
 
 
 async def welcome(server, seconds):
@@ -56,7 +56,7 @@ async def welcome(server, seconds):
     async for line in server.streamConsole(timeout=seconds):
         match = JOIN.search(line)
         if match:
-            await server.broadcast(f'Welcome, {match.group(1)}!', prefix='[Bot] ')
+            await server.bridge.broadcast(f'Welcome, {match.group(1)}!', prefix='[Bot] ')
             greeted.append(match.group(1))
     return greeted
 
@@ -64,7 +64,7 @@ async def welcome(server, seconds):
 async def watchTps(server, seconds, interval=10):
     samples = []
     for _ in range(max(1, int(seconds // interval))):
-        samples.append(await server.getTPS())
+        samples.append(await server.bridge.getTPS())
         print(f'TPS {samples[-1]}')
         await asyncio.sleep(interval)
     return samples
@@ -72,7 +72,7 @@ async def watchTps(server, seconds, interval=10):
 
 async def status(server) -> str:
     await server.refresh()
-    ram, players = await asyncio.gather(server.getRAM(), server.getPlayerCount())
+    ram, players = await asyncio.gather(server.getRAM(), server.bridge.getPlayerCount())
     return f'{server.name}: {await server.getStatus()}, {ram} MiB, {players} online'
 
 
@@ -91,7 +91,7 @@ asyncio.run(main())
 ```
 asyncio event loop
 ├── welcome()   async for ... server.streamConsole()   ─► worker thread ─► HungerBridgePy streamLogs() ─► SSE
-├── watchTps()  await server.getTPS()                   ─► worker thread ─► HungerBridgePy getTPS()     ─► HTTP
+├── watchTps()  await server.bridge.getTPS()            ─► worker thread ─► HungerBridgePy getTPS()     ─► HTTP
 └── status()    await server.getRAM() / getStatus()     ─► worker thread ─► CalagoAPI panel client      ─► panel
 ```
 
@@ -102,6 +102,8 @@ asyncio event loop
 - HungerBridgePy is a blocking client, so each bridge call and each open stream uses a
   worker thread, exactly like the rest of `AsyncPanel`. The daemon console
   (`server.console`) stays native asyncio.
+- The welcome loop survives network drops: the stream reconnects and HungerBridge replays
+  the lines that were missed, so a player who joined during the outage is still greeted once.
 - Callbacks may be coroutines: `await server.onConsoleLine(async_handler)` runs them on
   your event loop and returns the stream (`await stream.disconnect()`).
 - Errors are the same as in the sync API. Catch `hungerbridge.HungerBridgeError` for bridge
@@ -109,6 +111,7 @@ asyncio event loop
 
 ## Where to go from here
 
+- [16 · Logging from your bot](16-logging-from-your-bot.md): write the bot's own log lines.
 - Reference: [calagoapi-minecraft README](../../../src/extensions/calagoapi-minecraft/README.md),
   [HungerBridgePy](https://github.com/HungerNet/HungerBridgePy), [HungerBridge endpoints](https://github.com/HungerNet/HungerBridge/blob/main/ENDPOINTS.md).
 - Build your own game extension with the pattern from [10](../extensions/10-packaging-and-publishing.md#scaling-up-a-game-extension).

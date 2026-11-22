@@ -2,7 +2,6 @@ from calagoapi import Panel
 from calagoapi.extensions import classExtension
 
 from calagoapi_minecraft.server import MinecraftServer
-from calagoapi_minecraft.versions import VersionChangerAdmin
 
 
 @classExtension(Panel, 'minecraft')
@@ -12,15 +11,13 @@ class MinecraftManager:
 
     Example:
         from calagoapi.extensions import enable
-        enable('minecraft', config={'bridge_token': 'bot:9f2c...'})
+        enable('minecraft', config={'bridge_token_id': 'bot', 'bridge_token_secret': '9f2c...'})
 
         server = panel.minecraft.getServer('abc123')
         server = panel.minecraft.getServer('abc123', bridge_url='http://10.0.0.5:1913', address='play.example.com')
-        panel.minecraft.versionChanger.getSettings()     # admin API key
     '''
     def __init__(self, panel):
         self.panel = panel
-        self.versionChanger = VersionChangerAdmin(panel)
 
     def __repr__(self):
         return f'<MinecraftManager of {self.panel!r}>'
@@ -32,7 +29,7 @@ class MinecraftManager:
         Args:
             server_id: Server UUID or short id.
             name: Optional display name.
-            **options: MinecraftServer options: address, bridge_url, bridge_token.
+            **options: MinecraftServer options: address, bridge_url, bridge_token_id, bridge_token_secret.
         '''
         return self.panel.servers.getServer(server_id, name, server_class=MinecraftServer, **options)
 

@@ -3,7 +3,7 @@ from calagoapi.utils.exceptions import CalagoAPIError
 
 class MinecraftError(CalagoAPIError):
     '''
-    A Minecraft feature could not be used, e.g. the bridge jar for a version does not exist.
+    A Minecraft feature could not be used, e.g. no pickup URL appeared on the console.
 
     Errors returned by HungerBridge itself are raised unchanged as
     `hungerbridge.HungerBridgeError` subclasses (HungerBridgeAuthError, ...), and panel
@@ -17,7 +17,7 @@ class BridgeNotConfiguredError(MinecraftError):
 
     Fix it with one of:
 
-        enable('minecraft', config={'bridge_token': 'id:secret'})   # every server
-        server.connectBridge(url, 'id:secret')                       # one server
-        server.createBridgeToken()                                   # create one through the console
+        enable('minecraft', config={'bridge_token_id': 'bot', 'bridge_token_secret': '...'})   # every server
+        server.connectBridge(url, token_id='bot', token_secret='...')                         # one server
+        server.createBridgeToken()                                                             # create one through the console
     '''

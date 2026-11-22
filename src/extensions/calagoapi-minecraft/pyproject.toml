@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "calagoapi-minecraft"
 version = "0.0.0"  # injected from version.yaml by .github/workflows/release.yml
-description = "Minecraft servers for CalagoAPI: commands with output, console streaming, players and metrics through HungerBridge, the Version Changer, server.properties."
+description = "Minecraft servers for CalagoAPI: commands with output, console streaming, players and metrics through HungerBridge, bridge installs from Modrinth, server.properties."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "GPL-3.0" }
@@ -18,7 +18,7 @@ keywords = ["calagopus", "calagoapi", "minecraft", "hungerbridge", "paper", "fab
 
 dependencies = [
     "calagoapi>=2.0.dev1",
-    "hungerbridge>=1.0.dev2",
+    "hungerbridge>=2.0.dev1",
     "requests",
 ]
 
@@ -35,7 +35,7 @@ classifiers = [
 Homepage = "https://github.com/HungerNet/CalagoAPI"
 Documentation = "https://github.com/HungerNet/CalagoAPI/tree/main/docs/tutorials/minecraft"
 Source = "https://github.com/HungerNet/CalagoAPI/tree/main/src/extensions/calagoapi-minecraft"
-HungerBridge = "https://github.com/HungerNet/HungerBridge"
+HungerBridge = "https://modrinth.com/project/hungerbridge"
 HungerBridgePy = "https://github.com/HungerNet/HungerBridgePy"
 
 # how CalagoAPI finds the extension: enable('minecraft')

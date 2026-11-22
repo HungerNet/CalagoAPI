@@ -85,7 +85,7 @@ reference:
 calagoapi_minecraft/
 ├── server.py      class MinecraftServer(Server)         game features; overrides sendCommand()/streamConsole()
 ├── manager.py     @classExtension(Panel, 'minecraft')   panel.minecraft.getServer() → server_class=MinecraftServer
-├── extension.py   MinecraftExtension                    id 'minecraft', config, secret bridge_token
+├── extension.py   MinecraftExtension                    id 'minecraft', config, secret bridge_token_secret
 ├── aio.py         registerAsyncType(MinecraftServer, AsyncMinecraftServer)
 └── ...            game-specific client: depends on HungerBridgePy, never core
 ```
