@@ -1,5 +1,7 @@
 run: true
-version: '2-dev.1'
+version: '2-dev.2'
 description: |
   Dev 1:
   - Full rewrite
+  Dev 2:
+  - Fix panel API file clamping
