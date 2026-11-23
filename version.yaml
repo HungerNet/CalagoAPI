@@ -1,18 +1,5 @@
 run: true
-version: '1.0-dev.7'
+version: '2-dev.1'
 description: |
   Dev 1:
-  - Initial release
-  Dev 2:
-  - Added extension system
-  - Cleaned up code
-  - Improved documentation
-  Dev 3:
-  - Fixed bug in file listing
-  Dev 4:
-  - Bump version
-  Dev 5:
-  - Overhaul documentation
-  - Add tutorials
-  Dev 6:
   - Full rewrite

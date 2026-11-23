@@ -29,9 +29,8 @@ what is available, so a typo fails before anything is downloaded.
 
 ## Step 2: what installBridge() does
 
-1. HungerBridgePy's `findRelease()` asks [Modrinth](https://modrinth.com/project/hungerbridge),
-   the only place HungerBridge is released, for versions whose **metadata** lists that loader
-   and Minecraft version. File names are never parsed.
+1. HungerBridgePy's `findRelease()` asks [Modrinth](https://modrinth.com/project/hungerbridge) 
+   for versions whose **metadata** lists that loader and Minecraft version. File names are never parsed.
 2. Only HungerBridge 5.x releases are taken (they speak the protocol your HungerBridgePy
    speaks); the newest wins. Pin one with `version='5-alpha.1'`.
 3. Other `HungerBridge*.jar` files in the target directory are deleted (`replace=False`

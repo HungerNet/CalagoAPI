@@ -18,7 +18,7 @@ keywords = ["calagopus", "calagoapi", "minecraft", "hungerbridge", "paper", "fab
 
 dependencies = [
     "calagoapi>=2.0.dev1",
-    "hungerbridge>=2.0.dev1",
+    "hungerbridge>=5.0.dev1",
     "requests",
 ]
 
